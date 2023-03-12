@@ -66,7 +66,6 @@ func (p *Parser) processTypeField(idx int, astField *ast.Field, ci *ClassInfo) {
 
 	field := &FieldInfo{
 		Name:     astField.Names[0].String(),
-		TsName:   astField.Names[0].String(),
 		Json:     getJsonFieldName(astField),
 		Sequence: idx,
 		IsArray:  false,
@@ -86,7 +85,6 @@ func (p *Parser) processServiceSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []
 	// Create service info
 	si := &ServiceInfo{
 		Name:    spec.Name.String(),
-		TsName:  spec.Name.String(),
 		Group:   md.SrvGroup,
 		Path:    md.SrvPath,
 		Docs:    docs,

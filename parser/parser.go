@@ -35,9 +35,7 @@ func (p *Parser) SetTargetFolder(path string) *Parser {
 // Parse run the parser and generate files
 func (p *Parser) Parse() error {
 
-	model := &MetaModel{
-		Packages: make(map[string]*PackageInfo),
-	}
+	model := NewMetaModel()
 
 	for path, pkg := range p.sourceFolders {
 		if err := p.parseFolder(path, pkg, model); err != nil {

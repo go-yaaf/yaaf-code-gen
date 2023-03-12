@@ -14,7 +14,6 @@ func (p *Parser) processFuncDecl(decl *ast.FuncDecl, pi *PackageInfo) {
 
 	mi := &MethodInfo{
 		Name:              Name,
-		TsName:            Name,
 		Method:            "",
 		Path:              "",
 		Docs:              nil,
@@ -58,7 +57,7 @@ func updateMethodInfo(text string, mi *MethodInfo) {
 		return
 	} else if parseParamTag("@BodyParam:", text, mi) {
 		return
-	} else if parseParamTag("@Return:", text, mi) {
+	} else if parseReturnTag(text, mi) {
 		return
 	} else {
 		mi.Docs = append(mi.Docs, text)
@@ -123,7 +122,6 @@ func parseParamType(paramName, paramType string) *ParamInfo {
 
 	pi := &ParamInfo{
 		Name:    paramName,
-		TsName:  paramName,
 		Json:    paramName,
 		Type:    paramType,
 		IsArray: false,
@@ -149,21 +147,32 @@ func parseParamType(paramName, paramType string) *ParamInfo {
 
 // parse line with @Return prefix, format is: @Return <type>
 func parseReturnTag(text string, mi *MethodInfo) bool {
-	if idx := strings.Index(text, "@Return:"); idx > -1 {
-		ret := strings.Trim(text[idx+len("@Return:"):], " ")
-		mi.Return = &ClassInfo{
-			ID:          ret,
-			Name:        ret,
-			Package:     "",
-			Docs:        nil,
-			IsExtend:    false,
-			IsStream:    false,
-			BaseClasses: nil,
-			TableName:   "",
-			Fields:      nil,
-		}
-		return true
-	} else {
+	idx := strings.Index(text, "@Return:")
+	if idx < 0 {
 		return false
 	}
+	ret := strings.Trim(text[idx+len("@Return:"):], " ")
+
+	ret = strings.ReplaceAll(ret, "<", "[")
+	ret = strings.ReplaceAll(ret, ">", "]")
+
+	typ := ret
+	gen := ""
+	if idy := strings.Index(ret, "["); idy > -1 {
+		if idz := strings.Index(ret, "]"); idz > -1 {
+			typ = ret[idy+1 : idz]
+			gen = ret[:idy]
+		}
+	}
+
+	mi.Return = &ReturnInfo{
+		Name:        ret,
+		Type:        typ,
+		GenericType: gen,
+		IsArray:     false,
+		IsMap:       false,
+		MapKey:      "",
+		Docs:        nil,
+	}
+	return true
 }

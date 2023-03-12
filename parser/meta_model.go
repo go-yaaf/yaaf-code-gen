@@ -2,7 +2,8 @@ package parser
 
 // MetaModel represents the info about the domain model
 type MetaModel struct {
-	Packages map[string]*PackageInfo
+	Packages    map[string]*PackageInfo
+	BaseClasses map[string]*ClassInfo
 }
 
 // PackageInfo package metamodel
@@ -42,7 +43,6 @@ type ClassInfo struct {
 // FieldInfo class field metamodel
 type FieldInfo struct {
 	Name     string   // Field name
-	TsName   string   // TypeScript field name (small caps)
 	Json     string   // Json name (small capital)
 	Type     string   // Field type
 	Sequence int      // Field ordinal number
@@ -50,6 +50,17 @@ type FieldInfo struct {
 	IsMap    bool     // If type is a map
 	MapKey   string   // If type is a map, the map key: map[MapKey]Type
 	Docs     []string // Field documentation
+}
+
+// ReturnInfo method return value metamodel
+type ReturnInfo struct {
+	Name        string   // Return full type
+	Type        string   // Return type
+	GenericType string   // Return generic type
+	IsArray     bool     // If type is a list, the type in the list: []Type
+	IsMap       bool     // If type is a map
+	MapKey      string   // If type is a map, the map key: map[MapKey]Type
+	Docs        []string // Field documentation
 }
 
 // EnumInfo enum metamodel
@@ -70,7 +81,6 @@ type EnumValueInfo struct {
 // ServiceInfo REST service metamodel
 type ServiceInfo struct {
 	Name    string        // Name of the service
-	TsName  string        // TypeScript service name (small caps)
 	Group   string        // Name of the service group
 	Path    string        // Service URI path
 	Docs    []string      // Documentation
@@ -82,7 +92,6 @@ type ServiceInfo struct {
 // MethodInfo REST service method metamodel
 type MethodInfo struct {
 	Name              string       // Name of the service method
-	TsName            string       // TypeScript method name (small caps)
 	Method            string       // HTTP method: GET | POST | PUT | DELETE
 	Path              string       // Method URI path
 	Docs              []string     // Documentation
@@ -91,17 +100,16 @@ type MethodInfo struct {
 	QueryParams       []*ParamInfo // List of service query parameters
 	BodyParam         *ParamInfo   // Body
 	FileParam         *ParamInfo   // File param (for upload)
-	StreamsRequest    bool
-	Return            *ClassInfo // Return class info
-	Context           string     // Context (objects)
-	IsSocketMessage   bool       // Is this method represents socket message
-	SocketMessageType string     // Is method is socket message of type Request | Response
+	StreamsRequest    bool         // Flag to indicate the method should return stream
+	Return            *ReturnInfo  // Return class info
+	Context           string       // Context (objects)
+	IsSocketMessage   bool         // Is this method represents socket message
+	SocketMessageType string       // Is method is socket message of type Request | Response
 }
 
 // ParamInfo REST service method parameter metamodel
 type ParamInfo struct {
 	Name      string   // Field name
-	TsName    string   // TypeScript field name (small caps)
 	Json      string   // Json name (small capital)
 	Type      string   // Field type
 	Sequence  int      // Field ordinal number
@@ -123,7 +131,6 @@ type MessageInfo struct {
 // WebSocketInfo service endpoint metamodel
 type WebSocketInfo struct {
 	Name    string        // Name of the socket
-	TsName  string        // TypeScript socket name (small caps)
 	Group   string        // Name of the socket group
 	Path    string        // Web socket URI path
 	Usage   string        // Web socket Usage sample
@@ -144,4 +151,20 @@ func (m *MetaModel) FindClass(name string) *ClassInfo {
 		}
 	}
 	return nil
+}
+
+// NewMetaModel initialize metamodel with all base classes in the yaaf-common
+func NewMetaModel() *MetaModel {
+
+	model := &MetaModel{
+		Packages:    make(map[string]*PackageInfo),
+		BaseClasses: make(map[string]*ClassInfo),
+	}
+	model.BaseClasses["BaseEntity"] = NewBaseEntityModel()
+	model.BaseClasses["ActionResponse"] = NewActionResponseModel()
+	model.BaseClasses["EntityResponse"] = NewEntityResponseModel()
+	model.BaseClasses["EntityResponse"] = NewEntityResponseModel()
+	model.BaseClasses["EntitiesResponse"] = NewEntitiesResponseModel()
+
+	return model
 }

@@ -1,18 +1,5 @@
 package parser
 
-// MetaData list of metadata flags and values
-type MetaData struct {
-	Data    string // Mark structure as data model, the value is the struct name
-	Entity  string // Mark structure as Entity type, value is the table / index name pattern
-	Enum    string // Mark variable as Enum type, the value is the enum name
-	Message string // Mark structure as Message type, the value is the topic name pattern
-	Valid   bool   // Mark if metadata flags were detected
-}
-
-func (md *MetaData) IsEmpty() bool {
-	return (len(md.Data) + len(md.Entity) + len(md.Enum) + len(md.Message)) == 0
-}
-
 // MetaModel represents the info about the domain model
 type MetaModel struct {
 	Packages map[string]*PackageInfo
@@ -27,6 +14,16 @@ type PackageInfo struct {
 	Enums    []*EnumInfo      // List of enums in package
 	Services []*ServiceInfo   // List of services in package
 	Sockets  []*WebSocketInfo // List of web sockets
+}
+
+func (pi *PackageInfo) AddServiceMethod(mi *MethodInfo) {
+	// Find related service by context
+	for _, srv := range pi.Services {
+		if srv.Context == mi.Context {
+			srv.Methods = append(srv.Methods, mi)
+			return
+		}
+	}
 }
 
 // ClassInfo  domain model class metamodel
@@ -44,16 +41,15 @@ type ClassInfo struct {
 
 // FieldInfo class field metamodel
 type FieldInfo struct {
-	Name      string   // Field name
-	TsName    string   // TypeScript field name (small caps)
-	Json      string   // Json name (small capital)
-	Type      string   // Field type
-	Sequence  int      // Field ordinal number
-	IsArray   bool     // If type is a list, the type in the list: []Type
-	IsMap     bool     // If type is a map
-	MapKey    string   // If type is a map, the map key: map[MapKey]Type
-	Docs      []string // Field documentation
-	ParamType string   // How parameter is passed: Query | Path | Body
+	Name     string   // Field name
+	TsName   string   // TypeScript field name (small caps)
+	Json     string   // Json name (small capital)
+	Type     string   // Field type
+	Sequence int      // Field ordinal number
+	IsArray  bool     // If type is a list, the type in the list: []Type
+	IsMap    bool     // If type is a map
+	MapKey   string   // If type is a map, the map key: map[MapKey]Type
+	Docs     []string // Field documentation
 }
 
 // EnumInfo enum metamodel
@@ -104,13 +100,16 @@ type MethodInfo struct {
 
 // ParamInfo REST service method parameter metamodel
 type ParamInfo struct {
-	Name      string   // Parameter name
+	Name      string   // Field name
 	TsName    string   // TypeScript field name (small caps)
 	Json      string   // Json name (small capital)
-	Type      string   // Parameter value type
-	IsArray   bool     // Is it array
-	ParamType string   // How parameter is passed: Query | Path | Body
+	Type      string   // Field type
+	Sequence  int      // Field ordinal number
+	IsArray   bool     // If type is a list, the type in the list: []Type
+	IsMap     bool     // If type is a map
+	MapKey    string   // If type is a map, the map key: map[MapKey]Type
 	Docs      []string // Field documentation
+	ParamType string   // How parameter is passed: QueryParam | PathParam | BodyParam
 }
 
 // MessageInfo Web Socket Message metamodel

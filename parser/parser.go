@@ -6,7 +6,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"strconv"
 	"strings"
 )
 
@@ -97,13 +96,16 @@ func (p *Parser) processPackageFile(astFile *ast.File, pi *PackageInfo) {
 		switch decl.(type) {
 		case *ast.GenDecl:
 			p.processGenDecl(decl.(*ast.GenDecl), pi)
+		case *ast.FuncDecl:
+			p.processFuncDecl(decl.(*ast.FuncDecl), pi)
 		}
 	}
 }
 
+// process general declaration
 func (p *Parser) processGenDecl(decl *ast.GenDecl, pi *PackageInfo) {
-	docs, md := getComments(decl.Doc)
-	if md.Valid == false {
+	docs, md := parseComments(decl.Doc)
+	if md.IsValid() == false {
 		return
 	}
 	for _, spec := range decl.Specs {
@@ -114,70 +116,6 @@ func (p *Parser) processGenDecl(decl *ast.GenDecl, pi *PackageInfo) {
 			p.processEnumSpec(spec.(*ast.ValueSpec), pi, docs, md)
 		}
 	}
-}
-
-// Process structure type
-func (p *Parser) processTypeSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []string, md *MetaData) {
-
-	// Create class info
-	ci := &ClassInfo{
-		ID:          fmt.Sprintf("%s.%s", pi.Name, spec.Name.String()),
-		Name:        spec.Name.String(),
-		Package:     pi.Name,
-		Docs:        docs,
-		IsExtend:    false,
-		IsStream:    false,
-		BaseClasses: make([]string, 0),
-		TableName:   md.Entity,
-		Fields:      make([]*FieldInfo, 0),
-	}
-
-	objType := spec.Type.(*ast.StructType)
-
-	// process fields
-	if objType.Fields != nil {
-		for i, field := range objType.Fields.List {
-			p.processTypeField(i, field, ci)
-		}
-	}
-	pi.Classes = append(pi.Classes, ci)
-}
-
-// Process structure type field
-func (p *Parser) processTypeField(idx int, astField *ast.Field, ci *ClassInfo) {
-
-	// Check if it is a nameless field, in this case it is base type
-	if astField.Names == nil {
-		baseType := astField.Type.(*ast.Ident).String()
-		ci.BaseClasses = append(ci.BaseClasses, baseType)
-		ci.IsExtend = true
-		return
-	}
-
-	// Do not handle private fields
-	if astField.Names[0].IsExported() == false {
-		return
-	}
-
-	if astField.Names[0].Obj == nil {
-		return
-	}
-
-	field := &FieldInfo{
-		Name:      astField.Names[0].String(),
-		TsName:    astField.Names[0].String(),
-		Json:      getJsonFieldName(astField),
-		Sequence:  idx,
-		IsArray:   false,
-		Docs:      getFieldDoc(astField),
-		ParamType: "",
-	}
-
-	if field.Name == "PathParams" {
-		fmt.Println("stop here, let's check the type")
-	}
-	setFieldType(field, astField.Type)
-	ci.Fields = append(ci.Fields, field)
 }
 
 // If the field includes th json tag, return the tag, otherwise, return Json style name
@@ -206,7 +144,7 @@ func getJsonFieldName(astField *ast.Field) string {
 
 // Return field documentation
 func getFieldDoc(astField *ast.Field) []string {
-	docs, _ := getComments(astField.Doc, astField.Comment)
+	docs, _ := parseComments(astField.Doc, astField.Comment)
 	return docs
 }
 
@@ -244,7 +182,7 @@ func getFieldType(astExpr ast.Expr) string {
 }
 
 // Build documentation from comments group and enrich metadata
-func getComments(cgList ...*ast.CommentGroup) (doc []string, md *MetaData) {
+func parseComments(cgList ...*ast.CommentGroup) (doc []string, md *MetaData) {
 	docs := make([]string, 0)
 	md = &MetaData{}
 
@@ -264,101 +202,30 @@ func getComments(cgList ...*ast.CommentGroup) (doc []string, md *MetaData) {
 // Analyze comment line and update metadata flags
 func updateMetaData(text string, md *MetaData) bool {
 	if idx := strings.Index(text, "@Entity:"); idx > -1 {
-		md.Entity = strings.Trim(text[idx+8:], " ")
-		md.Valid = true
+		md.SetEntity(strings.Trim(text[idx+len("@Entity:"):], " "))
 		return true
 	} else if idx = strings.Index(text, "@Data"); idx > -1 {
-		md.Data = strings.Trim(text[idx+5:], " ")
-		md.Valid = true
+		md.SetData(strings.Trim(text[idx+len("@Data"):], " "))
 		return true
 	} else if idx = strings.Index(text, "@Enum:"); idx > -1 {
-		md.Enum = strings.Trim(text[idx+6:], " ")
-		md.Valid = true
+		md.SetEnum(strings.Trim(text[idx+len("@Enum:"):], " "))
 		return true
 	} else if idx = strings.Index(text, "@Message:"); idx > -1 {
-		md.Message = strings.Trim(text[idx+9:], " ")
-		md.Valid = true
+		md.SetMessage(strings.Trim(text[idx+len("@Message:"):], " "))
+		return true
+	} else if idx = strings.Index(text, "@Context:"); idx > -1 {
+		md.SetContext(strings.Trim(text[idx+len("@Context:"):], " "))
+		return true
+	} else if idx = strings.Index(text, "@Path:"); idx > -1 {
+		md.SetPath(strings.Trim(text[idx+len("@Path:"):], " "))
+		return true
+	} else if idx = strings.Index(text, "@ResourceGroup:"); idx > -1 {
+		md.SetGroup(strings.Trim(text[idx+len("@ResourceGroup:"):], " "))
+		return true
+	} else if idx = strings.Index(text, "@RequestHeader:"); idx > -1 {
+		md.AddHeader(strings.Trim(text[idx+len("@RequestHeader:"):], " "))
 		return true
 	} else {
 		return false
 	}
-}
-
-// Process public function
-func (p *Parser) processFunc(astObj *ast.Object, pi *PackageInfo) {
-	fmt.Println("processFunc", astObj.Name, astObj.Type)
-}
-
-// Process public enum
-func (p *Parser) processEnumSpec(spec *ast.ValueSpec, pi *PackageInfo, docs []string, md *MetaData) {
-
-	name := md.Enum
-	if len(name) == 0 {
-		name = spec.Names[0].String()
-	}
-
-	// Create enum info
-	ei := &EnumInfo{
-		Name:    name,
-		Docs:    docs,
-		Values:  make([]*EnumValueInfo, 0),
-		IsFlags: false,
-	}
-
-	// process fields
-	for _, val := range spec.Values {
-		if exp, ok := val.(*ast.UnaryExpr); ok {
-			if x, ok := exp.X.(*ast.CompositeLit); ok {
-
-				// build comments map
-				cm := getEnumCommentMap(x.Type.(*ast.Ident))
-
-				for _, elt := range x.Elts {
-					if evi := p.getEnumValue(elt.(*ast.KeyValueExpr)); evi != nil {
-						evi.Docs = append(evi.Docs, cm[evi.Name])
-						ei.Values = append(ei.Values, evi)
-					}
-				}
-			}
-		}
-	}
-
-	pi.Enums = append(pi.Enums, ei)
-}
-
-// get comment
-func getEnumCommentMap(expr *ast.Ident) map[string]string {
-	result := make(map[string]string)
-	for _, f := range expr.Obj.Decl.(*ast.TypeSpec).Type.(*ast.StructType).Fields.List {
-		key := f.Names[0].String()
-		value := ""
-		if f.Tag != nil {
-			value = strings.ReplaceAll(f.Tag.Value, "`", "")
-		}
-		result[key] = value
-	}
-	return result
-}
-
-// extract enum values
-func (p *Parser) getEnumValue(kv *ast.KeyValueExpr) *EnumValueInfo {
-
-	evi := &EnumValueInfo{
-		Docs: nil,
-	}
-
-	if key, ok := kv.Key.(*ast.Ident); ok {
-		evi.Name = key.Name
-	} else {
-		return nil
-	}
-
-	if val, ok := kv.Value.(*ast.BasicLit); ok {
-		if i, err := strconv.Atoi(val.Value); err == nil {
-			evi.Value = i
-		}
-	} else {
-		return nil
-	}
-	return evi
 }

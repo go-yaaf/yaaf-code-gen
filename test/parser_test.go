@@ -13,9 +13,10 @@ func TestParser(t *testing.T) {
 	gp := os.Getenv("GOPATH")
 	//f1 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model/common", gp)
 	//f2 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model/entities", gp)
-	f3 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model/enums", gp)
+	// f3 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model/enums", gp)
+	f4 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/rest/system", gp)
 
-	parser := p.NewParser().AddSourceFolder(f3, "")
+	parser := p.NewParser().AddSourceFolder(f4, "")
 
 	if err := parser.Parse(); err != nil {
 		t.Fail()

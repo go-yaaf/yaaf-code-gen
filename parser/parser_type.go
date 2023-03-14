@@ -2,11 +2,12 @@ package parser
 
 import (
 	"fmt"
+	"github.com/go-yaaf/yaaf-code-gen/model"
 	"go/ast"
 )
 
 // Process structure type
-func (p *Parser) processTypeSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []string, md *MetaData) {
+func (p *Parser) processTypeSpec(spec *ast.TypeSpec, pi *model.PackageInfo, docs []string, md *model.MetaData) {
 
 	if md.IsData {
 		p.processClassSpec(spec, pi, docs, md)
@@ -18,10 +19,10 @@ func (p *Parser) processTypeSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []str
 }
 
 // Process structure type for class
-func (p *Parser) processClassSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []string, md *MetaData) {
+func (p *Parser) processClassSpec(spec *ast.TypeSpec, pi *model.PackageInfo, docs []string, md *model.MetaData) {
 
 	// Create class info
-	ci := &ClassInfo{
+	ci := &model.ClassInfo{
 		ID:          fmt.Sprintf("%s.%s", pi.Name, spec.Name.String()),
 		Name:        spec.Name.String(),
 		Package:     pi.Name,
@@ -30,7 +31,7 @@ func (p *Parser) processClassSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []st
 		IsStream:    false,
 		BaseClasses: make([]string, 0),
 		TableName:   md.Entity,
-		Fields:      make([]*FieldInfo, 0),
+		Fields:      make([]*model.FieldInfo, 0),
 	}
 
 	objType := spec.Type.(*ast.StructType)
@@ -45,7 +46,7 @@ func (p *Parser) processClassSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []st
 }
 
 // Process structure type field
-func (p *Parser) processTypeField(idx int, astField *ast.Field, ci *ClassInfo) {
+func (p *Parser) processTypeField(idx int, astField *ast.Field, ci *model.ClassInfo) {
 
 	// Check if it is a nameless field, in this case it is base type
 	if astField.Names == nil {
@@ -64,7 +65,7 @@ func (p *Parser) processTypeField(idx int, astField *ast.Field, ci *ClassInfo) {
 		return
 	}
 
-	field := &FieldInfo{
+	field := &model.FieldInfo{
 		Name:     astField.Names[0].String(),
 		Json:     getJsonFieldName(astField),
 		Sequence: idx,
@@ -80,10 +81,10 @@ func (p *Parser) processTypeField(idx int, astField *ast.Field, ci *ClassInfo) {
 }
 
 // Process structure type for REST service
-func (p *Parser) processServiceSpec(spec *ast.TypeSpec, pi *PackageInfo, docs []string, md *MetaData) {
+func (p *Parser) processServiceSpec(spec *ast.TypeSpec, pi *model.PackageInfo, docs []string, md *model.MetaData) {
 
 	// Create service info
-	si := &ServiceInfo{
+	si := &model.ServiceInfo{
 		Name:    spec.Name.String(),
 		Group:   md.SrvGroup,
 		Path:    md.SrvPath,

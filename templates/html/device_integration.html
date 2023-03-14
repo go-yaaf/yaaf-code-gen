@@ -1,0 +1,78 @@
+{{define "body"}}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar" id="apinav">
+      <ul class="nav nav-sidebar">
+        <li><a href="#syntax_json"><abbr title="JSON"><span class="sideoverflow">JSON</span></abbr></a></li>
+        <li class="divider"></li>
+        <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
+      </ul>
+    </div>
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <ol class="breadcrumb" id="top">
+        <li class="active dropdown"><a href="index.html">Home</a></li>
+        <li class="dropdown"><a href="deviceIntegration.html">Edge Integration</a></li>
+      </ol>
+
+      <h1 class="page-header" id="data">Edge Integration</h1>
+
+      <h4 id="syntax_json">Overview</h4>
+
+      <p>The Edge device integration enables direct integration from the physical edge device to a local endpoint in the device network.</p>
+      <p>The Edge integration does not require connectivity to the innoVi core (in the cloud or on-prem data center) but it includes only raw data (without enrichment)</p>
+      <p>There are only two data integration available with the edge integration:</p>
+      <ul>
+        <li><code>Events integration</code> - The device will push raw event data on any real-time analytics event detection (not including anomaly detection).</li>
+        <li><code>Metadata integration</code> - The device will stream the metadata to the integration endpoint.</li>
+      </ul>
+      <p>To enable device integration type and endpoint, the user must first define integration target:</p>
+      <ol>
+        <li>In the innoVi portal, go to <code>Settings</code> | <code>Integration targets</code> tab.</li>
+        <li>Add new integration target, only WebHook (HTTP/S) or WebSocket (WS/S) protocols are supported for Edge integration.</li>
+        <li>Set protocol definitions (local endpoint, HTTP verb and HTTP headers)</li>
+        <li>In the <code>Device</code> page, go to <code>Integrations</code> tab</li>
+        <li>Enable the integration type (Events/Metadata>) and select the integration target</li>
+      </ol>
+
+      <hr>
+      <h4 id="syntax_json">Best Practices</h4>
+      <ol>
+        <li><code>Events integration</code> - It is recommended to use WebHook (HTTP/S) protocol due to the payload size (event image and event history)</li>
+        <li><code>Metadata integration</code> - It is recommended to use WebSocket (WS/S) protocol due to the metadata throughput</li>
+      </ol>
+
+      <hr>
+
+      <h4 id="syntax_json">Data Types</h4>
+
+      <table class="table resource-request-body">
+        <caption>Messages</caption>
+        <thead>
+        <tr>
+          <th>integration type</th>
+          <th>data type</th>
+          <th>description</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td><span class="request-description">Metadata Message</span></td>
+          <td><span class="datatype-reference"><a href="json_EdgeMetadataMessage.html">EdgeMetadataMessage</a> (JSON)</span></td>
+          <td><span class="request-description">Raw metadata message sent by the edge via the integration protocol</span></td>
+        </tr>
+        <tr>
+          <td><span class="request-description">Event Info Message</span></td>
+          <td><span class="datatype-reference"><a href="json_EdgeEventInfoMessage.html">EdgeEventInfoMessage</a> (JSON)</span></td>
+          <td><span class="request-description">Raw event info message sent by the edge via the integration protocol</span></td>
+        </tr>
+        </tbody>
+      </table>
+
+      {{template "footer" .}}
+
+    </div>
+  </div>
+</div>
+{{end}}

@@ -2,17 +2,18 @@ package parser
 
 import (
 	"fmt"
+	"github.com/go-yaaf/yaaf-code-gen/model"
 	"go/ast"
 	"strings"
 )
 
 // Process public function
-func (p *Parser) processFuncDecl(decl *ast.FuncDecl, pi *PackageInfo) {
+func (p *Parser) processFuncDecl(decl *ast.FuncDecl, pi *model.PackageInfo) {
 
 	name := decl.Name.String()
 	Name := fmt.Sprintf("%s%s", strings.ToLower(name[0:1]), name[1:])
 
-	mi := &MethodInfo{
+	mi := &model.MethodInfo{
 		Name:              Name,
 		Method:            "",
 		Path:              "",
@@ -33,7 +34,7 @@ func (p *Parser) processFuncDecl(decl *ast.FuncDecl, pi *PackageInfo) {
 }
 
 // Build documentation from comments group and enrich metadata
-func parseFunctionComments(cg *ast.CommentGroup, mi *MethodInfo) {
+func parseFunctionComments(cg *ast.CommentGroup, mi *model.MethodInfo) {
 
 	if cg == nil {
 		return
@@ -46,7 +47,7 @@ func parseFunctionComments(cg *ast.CommentGroup, mi *MethodInfo) {
 }
 
 // Analyze comment line and update method info flags
-func updateMethodInfo(text string, mi *MethodInfo) {
+func updateMethodInfo(text string, mi *model.MethodInfo) {
 	if parseHttpTag(text, mi) {
 		return
 	} else if parseContextTag(text, mi) {
@@ -65,7 +66,7 @@ func updateMethodInfo(text string, mi *MethodInfo) {
 }
 
 // parse line with @Http prefix, format is: @Http <name> [<type>]: <description>
-func parseHttpTag(text string, mi *MethodInfo) bool {
+func parseHttpTag(text string, mi *model.MethodInfo) bool {
 	if idx := strings.Index(text, "@Http:"); idx > -1 {
 		http := strings.Trim(text[idx+len("@Http:"):], " ")
 		parts := strings.Split(http, " ")
@@ -80,7 +81,7 @@ func parseHttpTag(text string, mi *MethodInfo) bool {
 }
 
 // parse line with @Context prefix, format is: @Context <name>
-func parseContextTag(text string, mi *MethodInfo) bool {
+func parseContextTag(text string, mi *model.MethodInfo) bool {
 	if idx := strings.Index(text, "@Context:"); idx > -1 {
 		mi.Context = strings.Trim(text[idx+len("@Context:"):], " ")
 		return true
@@ -90,7 +91,7 @@ func parseContextTag(text string, mi *MethodInfo) bool {
 }
 
 // parse line with @QueryParam / @PathParam / @BodyParam tad, format is: @tagType: <name> | <type> | <description>
-func parseParamTag(tagType, text string, mi *MethodInfo) bool {
+func parseParamTag(tagType, text string, mi *model.MethodInfo) bool {
 	idx := strings.Index(text, tagType)
 	if idx < 0 {
 		return false
@@ -118,9 +119,9 @@ func parseParamTag(tagType, text string, mi *MethodInfo) bool {
 }
 
 // parse param type line and create ParamInfo
-func parseParamType(paramName, paramType string) *ParamInfo {
+func parseParamType(paramName, paramType string) *model.ParamInfo {
 
-	pi := &ParamInfo{
+	pi := &model.ParamInfo{
 		Name:    paramName,
 		Json:    paramName,
 		Type:    paramType,
@@ -146,7 +147,7 @@ func parseParamType(paramName, paramType string) *ParamInfo {
 }
 
 // parse line with @Return prefix, format is: @Return <type>
-func parseReturnTag(text string, mi *MethodInfo) bool {
+func parseReturnTag(text string, mi *model.MethodInfo) bool {
 	idx := strings.Index(text, "@Return:")
 	if idx < 0 {
 		return false
@@ -165,7 +166,7 @@ func parseReturnTag(text string, mi *MethodInfo) bool {
 		}
 	}
 
-	mi.Return = &ReturnInfo{
+	mi.Return = &model.ReturnInfo{
 		Name:        ret,
 		Type:        typ,
 		GenericType: gen,

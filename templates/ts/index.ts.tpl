@@ -1,0 +1,2 @@
+{{range .}}export * from './{{.}}';
+{{end}}

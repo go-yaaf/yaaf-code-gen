@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	p "github.com/go-yaaf/yaaf-code-gen/parser"
+	"github.com/go-yaaf/yaaf-code-gen/processor"
 	"os"
 	"testing"
 )
@@ -16,7 +17,10 @@ func TestParser(t *testing.T) {
 	// f3 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model/enums", gp)
 	f4 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/rest/system", gp)
 
-	parser := p.NewParser().AddSourceFolder(f4, "")
+	parser := p.NewParser().
+		AddSourceFolder(f4, "").
+		AddProcessor(processor.NewLogProcessor("./output"))
+	//AddProcessor(processor.NewHtmlProcessor("./output/html"))
 
 	if err := parser.Parse(); err != nil {
 		t.Fail()

@@ -1,0 +1,75 @@
+{{define "body"}}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar" id="apinav">
+      <ul class="nav nav-sidebar">
+        <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
+      </ul>
+    </div>
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <ol class="breadcrumb" id="top">
+        <li class="active dropdown"><a href="index.html">Home</a></li>
+        <li class="active dropdown"><a href="dataTypes.html">Data Types</a></li>
+        <li class="dropdown"><a href="json_{{.Name}}.html">{{.Name}}</a></li>
+      </ol>
+
+      <h1 class="page-header">{{.Name}} <small>Data Type</small></h1>
+
+      <p>
+        {{range .Docs}}{{.}}<br>{{end}}
+      </p>
+
+      <dl class="dl-horizontal">
+      </dl>
+
+      <table class="table datatype-properties">
+        <caption>Properties</caption>
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>data type</th>
+            <th>description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Fields}}
+          <tr>
+            <td>
+              <span id="prop-{{.TsName}}" class="property-name">
+                {{.TsName}}
+              </span>
+            </td>
+            <td>
+              <span class="datatype-reference">
+                {{if .IsArray }}array of {{end}}{{.Type | getType}}
+              </span>
+            </td>
+            <td>
+              <span class="property-description">
+                {{range .Docs}}{{.}}<br>{{end}}
+              </span>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      <!-- 
+        <p class="lead">Example</p>
+
+        <pre class="prettyprint language-js example">
+          {{.Fields}}
+{
+  &quot;accountId&quot; : &quot;...&quot;,
+  &quot;role&quot; : &quot;SUPERVISOR&quot;
+} 
+        </pre> -->
+
+        {{template "footer" .}}
+
+    </div>
+  </div>
+</div>
+
+{{end}}

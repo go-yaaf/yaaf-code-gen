@@ -1,13 +1,14 @@
 package parser
 
 import (
+	"github.com/go-yaaf/yaaf-code-gen/model"
 	"go/ast"
 	"strconv"
 	"strings"
 )
 
 // Process public enum
-func (p *Parser) processEnumSpec(spec *ast.ValueSpec, pi *PackageInfo, docs []string, md *MetaData) {
+func (p *Parser) processEnumSpec(spec *ast.ValueSpec, pi *model.PackageInfo, docs []string, md *model.MetaData) {
 
 	name := md.Enum
 	if len(name) == 0 {
@@ -15,10 +16,10 @@ func (p *Parser) processEnumSpec(spec *ast.ValueSpec, pi *PackageInfo, docs []st
 	}
 
 	// Create enum info
-	ei := &EnumInfo{
+	ei := &model.EnumInfo{
 		Name:    name,
 		Docs:    docs,
-		Values:  make([]*EnumValueInfo, 0),
+		Values:  make([]*model.EnumValueInfo, 0),
 		IsFlags: false,
 	}
 
@@ -44,9 +45,9 @@ func (p *Parser) processEnumSpec(spec *ast.ValueSpec, pi *PackageInfo, docs []st
 }
 
 // extract enum values
-func (p *Parser) getEnumValue(kv *ast.KeyValueExpr) *EnumValueInfo {
+func (p *Parser) getEnumValue(kv *ast.KeyValueExpr) *model.EnumValueInfo {
 
-	evi := &EnumValueInfo{
+	evi := &model.EnumValueInfo{
 		Docs: nil,
 	}
 

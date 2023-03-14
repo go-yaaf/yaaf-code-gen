@@ -1,22 +1,28 @@
 package parser
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/go-yaaf/yaaf-code-gen/processor"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"log"
 	"strings"
+	"sync"
+
+	"github.com/go-yaaf/yaaf-code-gen/model"
 )
 
 type Parser struct {
 	sourceFolders map[string]string
 	targetFolder  string
+	processors    map[string]processor.Processor
 }
 
 func NewParser() *Parser {
 	return &Parser{
 		sourceFolders: make(map[string]string),
+		processors:    make(map[string]processor.Processor),
 	}
 }
 
@@ -26,16 +32,22 @@ func (p *Parser) AddSourceFolder(path string, pkg string) *Parser {
 	return p
 }
 
+// AddProcessor adds new processor to process files
+func (p *Parser) AddProcessor(processor processor.Processor) *Parser {
+	p.processors[processor.Name()] = processor
+	return p
+}
+
 // SetTargetFolder set target folder to put the artifacts
 func (p *Parser) SetTargetFolder(path string) *Parser {
 	p.targetFolder = path
 	return p
 }
 
-// Parse run the parser and generate files
+// Parse run the parser to create model and invoke the processors to generate files
 func (p *Parser) Parse() error {
 
-	model := NewMetaModel()
+	model := model.NewMetaModel()
 
 	for path, pkg := range p.sourceFolders {
 		if err := p.parseFolder(path, pkg, model); err != nil {
@@ -43,15 +55,26 @@ func (p *Parser) Parse() error {
 		}
 	}
 
-	// For debugging purpose, print the model
-	if bytes, err := json.MarshalIndent(model, "", "  "); err == nil {
-		fmt.Println(string(bytes))
+	// Execute processors
+	wg := sync.WaitGroup{}
+	wg.Add(len(p.processors))
+
+	for name, proc := range p.processors {
+		go func() {
+			log.Default().Println("Executing", name)
+			if err := proc.Process(model); err != nil {
+				log.Default().Println("error executing ", name, err.Error())
+			}
+			wg.Done()
+		}()
 	}
+
+	wg.Wait()
 	return nil
 }
 
 // parse single folder
-func (p *Parser) parseFolder(path, packageName string, model *MetaModel) error {
+func (p *Parser) parseFolder(path, packageName string, metaModel *model.MetaModel) error {
 	fSet := token.NewFileSet() // positions are relative to file set
 
 	// Parse src folder including comments
@@ -60,27 +83,28 @@ func (p *Parser) parseFolder(path, packageName string, model *MetaModel) error {
 	} else {
 
 		for _, pkg := range packages {
-			p.processPackage(pkg, model)
+			p.processPackage(pkg, metaModel)
 		}
 	}
 	return nil
 }
 
 // process single package
-func (p *Parser) processPackage(astPackage *ast.Package, model *MetaModel) {
+func (p *Parser) processPackage(astPackage *ast.Package, metaModel *model.MetaModel) {
 	// Get or create package
-	pi := &PackageInfo{
+
+	pi := &model.PackageInfo{
 		Name:     astPackage.Name,
 		Docs:     make([]string, 0),
-		Classes:  make([]*ClassInfo, 0),
-		Enums:    make([]*EnumInfo, 0),
-		Services: make([]*ServiceInfo, 0),
-		Sockets:  make([]*WebSocketInfo, 0),
+		Classes:  make([]*model.ClassInfo, 0),
+		Enums:    make([]*model.EnumInfo, 0),
+		Services: make([]*model.ServiceInfo, 0),
+		Sockets:  make([]*model.WebSocketInfo, 0),
 	}
-	if val, found := model.Packages[astPackage.Name]; found {
+	if val, found := metaModel.Packages[astPackage.Name]; found {
 		pi = val
 	} else {
-		model.Packages[astPackage.Name] = pi
+		metaModel.Packages[astPackage.Name] = pi
 	}
 
 	for _, astFile := range astPackage.Files {
@@ -89,7 +113,7 @@ func (p *Parser) processPackage(astPackage *ast.Package, model *MetaModel) {
 }
 
 // process single package file
-func (p *Parser) processPackageFile(astFile *ast.File, pi *PackageInfo) {
+func (p *Parser) processPackageFile(astFile *ast.File, pi *model.PackageInfo) {
 	for _, decl := range astFile.Decls {
 		switch decl.(type) {
 		case *ast.GenDecl:
@@ -101,7 +125,7 @@ func (p *Parser) processPackageFile(astFile *ast.File, pi *PackageInfo) {
 }
 
 // process general declaration
-func (p *Parser) processGenDecl(decl *ast.GenDecl, pi *PackageInfo) {
+func (p *Parser) processGenDecl(decl *ast.GenDecl, pi *model.PackageInfo) {
 	docs, md := parseComments(decl.Doc)
 	if md.IsValid() == false {
 		return
@@ -147,7 +171,7 @@ func getFieldDoc(astField *ast.Field) []string {
 }
 
 // Extract field type
-func setFieldType(fi *FieldInfo, astExpr ast.Expr) {
+func setFieldType(fi *model.FieldInfo, astExpr ast.Expr) {
 
 	switch v := astExpr.(type) {
 	case *ast.Ident:
@@ -180,9 +204,9 @@ func getFieldType(astExpr ast.Expr) string {
 }
 
 // Build documentation from comments group and enrich metadata
-func parseComments(cgList ...*ast.CommentGroup) (doc []string, md *MetaData) {
+func parseComments(cgList ...*ast.CommentGroup) (doc []string, md *model.MetaData) {
 	docs := make([]string, 0)
-	md = &MetaData{}
+	md = &model.MetaData{}
 
 	for _, cg := range cgList {
 		if cg != nil {
@@ -198,7 +222,7 @@ func parseComments(cgList ...*ast.CommentGroup) (doc []string, md *MetaData) {
 }
 
 // Analyze comment line and update metadata flags
-func updateMetaData(text string, md *MetaData) bool {
+func updateMetaData(text string, md *model.MetaData) bool {
 	if idx := strings.Index(text, "@Entity:"); idx > -1 {
 		md.SetEntity(strings.Trim(text[idx+len("@Entity:"):], " "))
 		return true

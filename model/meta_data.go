@@ -1,4 +1,4 @@
-package parser
+package model
 
 // MetaData list of metadata flags and values
 type MetaData struct {

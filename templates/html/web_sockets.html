@@ -1,0 +1,62 @@
+{{define "body"}}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar" id="apinav">
+      <ul class="nav nav-sidebar">
+        <li><a href="#syntax_json"><abbr title="JSON"><span class="sideoverflow">JSON</span></abbr></a></li>
+        <li class="divider"></li>
+        <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
+      </ul>
+    </div>
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <ol class="breadcrumb" id="top">
+        <li class="active dropdown"><a href="index.html">Home</a></li>
+        <li class="dropdown"><a href="webSockets.html">Web Sockets</a></li>
+      </ol>
+
+      <h1 class="page-header" id="data">Web Sockets</h1>
+
+      <h4 id="syntax_json">Overview</h4>
+
+      <p>The innoVi Core API exposes web socket endpoints for real-time push notification to client applications.</p>
+      <p>To use the API, the following HTTP headers are required:</p>
+      <ul>
+        <li><code>X-API-KEY</code> - Any consumer MUST include API key provided by Agent Vi. API Keys are used to identify the services consumer (application/service) type and grant access to relevant resources only.
+        <li><code>X-ACCESS-TOKEN</code> - Security context to identify the Web Socket consumer and the account info.
+      </ul>
+      <p>These parameters are required for the initial web socket connection. After protocol upgrade from the HTTP to Web Socket,
+        the security token (which encapsulates user and account info) should be provided in the <code>token</code> query parameter.<br>
+        Since the token is provided in the URL, the token should be URL encoded in order to ensure the URL is valid.
+      </p>
+
+      <hr>
+
+      <table class="table table-hover data-types">
+        <thead>
+          <tr>
+            <th align="center">name</th>
+            <th align="center">description</th>
+          </tr>
+        </thead>
+        <tbody data-link="row" class="rowlink">
+          {{range .}}
+          <tr class="clickable-row" data-href="web_socket_{{.Name}}.html">
+            <td>
+              <span class="datatype-name">{{.Name}}</span>
+            </td>
+            <td>
+              <span class="datatype-description">{{range .Docs}}{{.}} <br>{{end}}</span>
+              <span class="datatype-description"><b>Usage: </b><code>{{.Usage}}</code></span>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+
+      {{template "footer" .}}
+
+    </div>
+  </div>
+</div>
+{{end}}

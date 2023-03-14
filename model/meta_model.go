@@ -1,4 +1,6 @@
-package parser
+package model
+
+import "strings"
 
 // MetaModel represents the info about the domain model
 type MetaModel struct {
@@ -118,6 +120,10 @@ type ParamInfo struct {
 	MapKey    string   // If type is a map, the map key: map[MapKey]Type
 	Docs      []string // Field documentation
 	ParamType string   // How parameter is passed: QueryParam | PathParam | BodyParam
+}
+
+func (pi *ParamInfo) TsName() string {
+	return strings.ToUpper(pi.Name)
 }
 
 // MessageInfo Web Socket Message metamodel

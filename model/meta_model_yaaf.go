@@ -1,4 +1,4 @@
-package parser
+package model
 
 // create field
 func newField(seq int, name, json, typ, doc string) *FieldInfo {

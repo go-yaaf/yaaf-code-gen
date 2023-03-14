@@ -1,0 +1,55 @@
+{{define "body"}}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar" id="apinav">
+      <ul class="nav nav-sidebar">
+        {{range .Values}}
+        <li><a href="#{{.Name}}"><abbr title="{{.Name}}"><span class="sideoverflow">{{.Name}}</span></abbr></a></li>
+        {{end}}
+        <li class="divider"></li>
+        <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
+      </ul>
+    </div>
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <ol class="breadcrumb" id="top">
+        <li class="active dropdown"><a href="index.html">Home</a></li>
+        <li class="active dropdown"><a href="enums.html">Enums</a></li>
+        <li class="dropdown"><a href="json_{{.Name}}.html">{{.Name}}</a></li>
+      </ol>
+
+      <h1 class="page-header">{{.Name}} <small>Data Type</small></h1>
+
+      <p>
+        {{range .Docs}} {{.}} {{end}}
+      </p>
+
+      <dl class="dl-horizontal">
+      </dl>
+
+      <table class="table datatype-values">
+        <caption>Values</caption>
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>value</th>
+            <th>description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Values}}
+          <tr>
+            <td><span class="value-name" id="{{.Name}}">{{.Name}}</span></td>
+            <td><span class="value-value" id="{{.Value}}">{{.Value}}</span></td>
+            <td><span class="value-description">{{range .Docs}}{{.}} {{end}}</span></td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+
+      {{template "footer" .}}
+
+    </div>
+  </div>
+</div>
+{{end}}

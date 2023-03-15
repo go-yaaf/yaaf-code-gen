@@ -6,7 +6,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
 	"strings"
 	"sync"
 
@@ -57,16 +56,16 @@ func (p *Parser) Parse() error {
 
 	// Execute processors
 	wg := sync.WaitGroup{}
-	wg.Add(len(p.processors))
 
 	for name, proc := range p.processors {
-		go func() {
-			log.Default().Println("Executing", name)
+		wg.Add(1)
+		go func(g *sync.WaitGroup) {
+			fmt.Println("Executing", name)
 			if err := proc.Process(model); err != nil {
-				log.Default().Println("error executing ", name, err.Error())
+				fmt.Println("error executing ", name, err.Error())
 			}
-			wg.Done()
-		}()
+			g.Done()
+		}(&wg)
 	}
 
 	wg.Wait()

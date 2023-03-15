@@ -3,7 +3,6 @@ package processor
 import (
 	"fmt"
 	"github.com/go-yaaf/yaaf-code-gen/model"
-	"log"
 	"os"
 	"strings"
 	"text/template"
@@ -31,8 +30,8 @@ func (p *HtmlProcessor) Process(metaModel *model.MetaModel) error {
 	p.Model = metaModel
 
 	// First, ensure output directory
-	if err := os.MkdirAll("./output/html/img", os.ModePerm); err != nil {
-		log.Fatal("Error creating folder: ./output/html", err)
+	if err := os.MkdirAll(p.outputFolder, os.ModePerm); err != nil {
+		return fmt.Errorf("error creating folders: %s: %s", p.outputFolder, err.Error())
 	}
 
 	// Iterate over the packages and merge all classes
@@ -40,17 +39,23 @@ func (p *HtmlProcessor) Process(metaModel *model.MetaModel) error {
 
 		// Generate class pages and append to all classes
 		for _, class := range v.Classes {
-			p.generateClassPage(class)
+			if err := p.generateClassPage(class); err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 
 		// Generate enum pages and append to all enums
 		for _, enum := range v.Enums {
-			p.generateEnumPage(enum)
+			if err := p.generateEnumPage(enum); err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 
 		// Generate service pages and append to all services
 		for _, service := range v.Services {
-			p.generateServicePage(service)
+			if err := p.generateServicePage(service); err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	}
 
@@ -73,46 +78,62 @@ func (p *HtmlProcessor) generateCSS() {
 }
 
 // Create HTML class page
-func (p *HtmlProcessor) generateClassPage(class *model.ClassInfo) {
+func (p *HtmlProcessor) generateClassPage(class *model.ClassInfo) error {
 	funcMap := template.FuncMap{
 		"getType": getType,
 	}
-	tmpl, _ := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_data_class.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/json_" + class.Name + ".html")
-	if err != nil {
-		fmt.Println("create file: ", err)
-		return
+	tmpl, terr := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_data_class.html", "templates/html/base.html")
+	if terr != nil {
+		return fmt.Errorf("error parsing template: %s: %s", "base.html", terr)
 	}
-	if err = tmpl.Execute(f, class); err != nil {
-		log.Fatal(err)
+
+	filePath := fmt.Sprintf("%s/json_%s.html", p.outputFolder, class.Name)
+	if f, err := os.Create(filePath); err != nil {
+		return fmt.Errorf("error creating file: %s: %s", filePath, err)
+	} else {
+		return tmpl.Execute(f, class)
 	}
 }
 
 // Create HTML enum page
-func (p *HtmlProcessor) generateEnumPage(enum *model.EnumInfo) {
-	tmpl, _ := template.New("base.html").ParseFiles("templates/html/footer.html", "templates/html/json_data_enum.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/json_" + enum.Name + ".html")
-	if err != nil {
-		fmt.Println("create file: ", err)
-		return
+func (p *HtmlProcessor) generateEnumPage(enum *model.EnumInfo) error {
+
+	tmpl, terr := template.New("enum").ParseFiles("templates/html/footer.html", "templates/html/json_data_enum.html", "templates/html/base.html")
+	if terr != nil {
+		return fmt.Errorf("error parsing template: %s: %s", "enum", terr)
 	}
-	tmpl.Execute(f, enum)
+
+	filePath := fmt.Sprintf("%s/json_%s.html", p.outputFolder, enum.Name)
+	if f, err := os.Create(filePath); err != nil {
+		return fmt.Errorf("error creating file: %s: %s", filePath, err)
+	} else {
+		return tmpl.Execute(f, enum)
+	}
 }
 
 // Create HTML service page
-func (p *HtmlProcessor) generateServicePage(service *model.ServiceInfo) {
+func (p *HtmlProcessor) generateServicePage(service *model.ServiceInfo) error {
 	funcMap := template.FuncMap{
 		"getType":      getType,
 		"addBodyParam": addBodyParam,
 		"addParams":    addParams,
 	}
-	tmpl, _ := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_data_service.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/resource_" + service.Name + ".html")
-	if err != nil {
-		fmt.Println("create file: ", err)
-		return
+
+	tm := template.New("service")
+	tm.Funcs(funcMap)
+	tmpl, terr := tm.ParseFiles("templates/html/footer.html", "templates/html/json_data_service.html", "templates/html/base.html")
+
+	//tmpl, terr := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_data_service.html", "templates/html/base.html")
+	if terr != nil {
+		return fmt.Errorf("error parsing template: %s: %s", "service", terr)
 	}
-	tmpl.Execute(f, service)
+
+	filePath := fmt.Sprintf("%s/resource_%s.html", p.outputFolder, service.Name)
+	if f, err := os.Create(filePath); err != nil {
+		return fmt.Errorf("error creating file: %s: %s", filePath, err.Error())
+	} else {
+		return tmpl.Execute(f, *service)
+	}
 }
 
 func (p *HtmlProcessor) listServicesGroups() map[string][]*model.ServiceInfo {

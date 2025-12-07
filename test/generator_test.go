@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	"os"
-	"path"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -27,11 +26,13 @@ func TestGenerator(t *testing.T) {
 	gen.WithPathFilter("/bitbucket.org/shieldiot/")
 
 	// Get the target folder
-	dir, err := os.Getwd()
-	require.Nil(t, err)
+	//dir, err := os.Getwd()
+	//require.Nil(t, err)
+	//outDir := path.Join(dir, "output")
 
-	outDir := path.Join(dir, "output")
-	err = os.MkdirAll(outDir, os.ModePerm)
+	outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/ng-workspace/projects/ngx-sample-lib/src/lib", gp)
+
+	err := os.MkdirAll(outDir, os.ModePerm)
 	require.Nil(t, err)
 
 	gen.WithTargetFolder(outDir)

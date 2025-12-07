@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -33,9 +32,6 @@ func NewServiceInfo(name string, doc ...string) *ServiceInfo {
 // Fill the dependencies map
 func (s *ServiceInfo) fillDependencies(mm *MetaModel) {
 
-	if s.TsName == "UsrDevicesService" {
-		fmt.Println("stop here")
-	}
 	// Add dependencies for complex fields
 	for _, mi := range s.Methods {
 		// Check Path parameters

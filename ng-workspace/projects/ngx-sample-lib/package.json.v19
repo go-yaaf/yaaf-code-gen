@@ -1,0 +1,13 @@
+{
+  "name": "@your-scope/ngx-sample-lib",
+  "version": "0.0.1",
+  "description": "Angular 19.2.19 library skeleton",
+  "author": "your name",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^19.2.19",
+    "@angular/core": "^19.2.19"
+  },
+  "dependencies": {},
+  "sideEffects": false
+}

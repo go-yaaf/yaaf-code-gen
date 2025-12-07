@@ -65,8 +65,7 @@ func (p *FileParser) ParseFile(path string) error {
 		case *ast.FuncDecl:
 			_ = p.processServiceMethod(spec)
 		default:
-			fmt.Println("ParseFile: spec is not *ast.GenDecl or *ast.FuncDecl")
-			// do nothing
+			//fmt.Println("ParseFile: spec is not *ast.GenDecl or *ast.FuncDecl")
 		}
 	}
 	return nil

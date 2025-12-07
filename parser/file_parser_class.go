@@ -44,7 +44,7 @@ func (p *FileParser) processEntityType(ti *model.TypeInfo, decl *ast.GenDecl) er
 			}
 		}
 	} else {
-		fmt.Println("error: spec.Type is not of type *ast.StructType")
+		//fmt.Println("error: spec.Type is not of type *ast.StructType")
 	}
 
 	// Add class to model
@@ -88,7 +88,7 @@ func (p *FileParser) processDataType(ti *model.TypeInfo, decl *ast.GenDecl) erro
 			}
 		}
 	} else {
-		fmt.Println("processDataType: spec.Type is not of type *ast.StructType")
+		//fmt.Println("processDataType: spec.Type is not of type *ast.StructType")
 	}
 
 	// Add class to model
@@ -110,7 +110,7 @@ func (p *FileParser) processClassGenericsParams(ci *model.ClassInfo, params *ast
 			if val, ok := field.Type.(*ast.Ident); ok {
 				ci.GenericTypes = append(ci.GenericTypes, model.StringKeyValue{Key: key, Value: val.Name})
 			} else {
-				fmt.Println("processClassGenericsParams: field type is not of type *ast.Ident")
+				//fmt.Println("processClassGenericsParams: field type is not of type *ast.Ident")
 			}
 		}
 	}
@@ -135,11 +135,6 @@ func (p *FileParser) processClassField(idx int, field *ast.Field, ci *model.Clas
 		IsArray:    false,
 		IsRequired: true,
 	}
-
-	//fmt.Println("DEBUG:", ci.Name, fi.Name)
-	//if fi.Name == "field_to_check" {
-	//	fmt.Println("stop here")
-	//}
 
 	switch ft := field.Type.(type) {
 	case *ast.Ident:
@@ -194,7 +189,7 @@ func (p *FileParser) processInheritedClass(field *ast.Field, ci *model.ClassInfo
 	case *ast.SelectorExpr:
 		ci.BaseClass = ft.Sel.Name
 	default:
-		fmt.Println("error: field type is not of type *ast.ArrayType")
+		//fmt.Println("error: field type is not of type *ast.ArrayType")
 	}
 }
 
@@ -297,7 +292,7 @@ func (p *FileParser) processFieldTypeArray(fi *model.FieldInfo, arrType *ast.Arr
 		if tmplType, ok := fieldType.X.(*ast.Ident); ok {
 			p.processFieldTypeIdent(fi, tmplType)
 		} else {
-			fmt.Println("processFieldTypeArray: error processing type", fi.Name)
+			//fmt.Println("processFieldTypeArray: error processing type", fi.Name)
 		}
 	case *ast.StarExpr:
 		if tmplType, ok := fieldType.X.(*ast.Ident); ok {
@@ -308,7 +303,7 @@ func (p *FileParser) processFieldTypeArray(fi *model.FieldInfo, arrType *ast.Arr
 		fi.Type = "any"
 		fi.IsArray = true
 	default:
-		fmt.Println("processFieldTypeArray error: field type of", fi.Name)
+		//fmt.Println("processFieldTypeArray error: field type of", fi.Name)
 	}
 }
 

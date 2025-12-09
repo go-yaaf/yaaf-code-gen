@@ -20,17 +20,16 @@ func TestGenerator(t *testing.T) {
 	f1 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model", gp)
 	gen.WithSourceFolder(f1, "model")
 
-	f2 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/rest", gp)
-	gen.WithSourceFolder(f2, "services")
+	//f2 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/rest", gp)
+	//gen.WithSourceFolder(f2, "services")
+
+	f3 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-dashboard/rest", gp)
+	gen.WithSourceFolder(f3, "services")
 
 	gen.WithPathFilter("/bitbucket.org/shieldiot/")
 
-	// Get the target folder
-	//dir, err := os.Getwd()
-	//require.Nil(t, err)
-	//outDir := path.Join(dir, "output")
-
-	outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/ng-workspace/projects/ngx-sample-lib/src/lib", gp)
+	//outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/ng-workspace/projects/ngx-sample-lib/src/lib", gp)
+	outDir := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-dashboard/apps/projects/client/src/lib", gp)
 
 	err := os.MkdirAll(outDir, os.ModePerm)
 	require.Nil(t, err)

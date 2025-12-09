@@ -1,6 +1,9 @@
 package model
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 var tsTypes = map[string]string{
 	"double":        "number",
@@ -29,10 +32,28 @@ var tsTypes = map[string]string{
 
 // GetTsType - convert variables types to known TypeScript types
 func GetTsType(pType string) string {
+	// Handle generics
+	if strings.Contains(pType, "[") {
+		return getGenericTsType(pType)
+	}
 	if _, ok := tsTypes[pType]; ok {
 		return tsTypes[pType]
 	}
 	return pType
+}
+
+// GetGenericTsType - convert variables generics types to known TypeScript types
+func getGenericTsType(pType string) string {
+	// Extract type and index
+	start := strings.Index(pType, "[")
+	end := strings.Index(pType, "]")
+	x := pType[0:start]
+	y := pType[start+1 : end]
+
+	xt := GetTsType(x)
+	yt := GetTsType(y)
+
+	return fmt.Sprintf("%s<%s>", xt, yt)
 }
 
 // Check if the provided tsType is in the list of primitive types

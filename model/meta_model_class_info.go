@@ -1,5 +1,9 @@
 package model
 
+import (
+	"strings"
+)
+
 // region Class Info structure -----------------------------------------------------------------------------------------
 
 // ClassInfo class information
@@ -56,9 +60,10 @@ func (ci *ClassInfo) GetField(fName string) *FieldInfo {
 func (ci *ClassInfo) fillDependencies(mm *MetaModel) {
 	// Add dependencies for complex fields
 	for _, fi := range ci.Fields {
-		isNative, arr := isNativeType(fi.Type)
-		if !isNative && !ci.isGenericFieldType(fi.Type) {
-			ci.Dependencies[fi.TsType] = arr
+		if ci.isGenericFieldType(fi.Type) {
+			ci.fillGenericFieldDependencies(fi.Type)
+		} else {
+			ci.fillFieldDependencies(fi.Type, fi.TsType)
 		}
 	}
 
@@ -67,14 +72,42 @@ func (ci *ClassInfo) fillDependencies(mm *MetaModel) {
 	}
 }
 
+func (ci *ClassInfo) fillFieldDependencies(fieldType string, fieldTsType string) {
+	isNative, arr := isNativeType(fieldType)
+	if !isNative && !ci.isGenericClassIndex(fieldType) {
+		ci.Dependencies[fieldTsType] = arr
+	}
+}
+
+func (ci *ClassInfo) fillGenericFieldDependencies(fieldType string) {
+	// Extract type and index
+	start := strings.Index(fieldType, "[")
+	end := strings.Index(fieldType, "]")
+
+	xType := fieldType[0:start]
+	xTsType := GetTsType(xType)
+	ci.fillFieldDependencies(xType, xTsType)
+
+	yType := fieldType[start+1 : end]
+	yTsType := GetTsType(yType)
+	ci.fillFieldDependencies(yType, yTsType)
+}
+
 // Check if the field type is not part of the generic type list
-func (ci *ClassInfo) isGenericFieldType(fieldType string) bool {
+func (ci *ClassInfo) isGenericClassIndex(fieldType string) bool {
 	for _, g := range ci.GenericTypes {
 		if g.Key == fieldType {
 			return true
 		}
 	}
 	return false
+}
+
+func (ci *ClassInfo) isGenericFieldType(fieldType string) bool {
+	if strings.HasPrefix(fieldType, "map") {
+		return false
+	}
+	return strings.Contains(fieldType, "[") && strings.Contains(fieldType, "]")
 }
 
 // endregion

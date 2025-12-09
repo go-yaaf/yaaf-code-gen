@@ -177,7 +177,12 @@ func (p *FileParser) processTypeComments(ti *model.TypeInfo, groups ...*ast.Comm
 			} else if strings.HasPrefix(line, "@Enum") {
 				ti.Type = "@Enum"
 			} else if strings.HasPrefix(line, "@Service") {
-				ti.TsName = p.getTagValue(line, "@Service:")
+				altName := p.getTagValue(line, "@Service:")
+				if altName != "@Service" {
+					ti.TsName = altName
+				} else {
+					ti.TsName = model.Title(ti.TsName)
+				}
 				ti.Type = "@Service"
 			} else if strings.HasPrefix(line, "@Path") {
 				ti.Path = p.getTagValue(line, "@Path:")

@@ -362,8 +362,11 @@ func (p *FileParser) processFieldTypeGeneric(fi *model.FieldInfo, genType *ast.I
 		panic(err)
 	}
 
-	fi.Type = fmt.Sprintf("%s[%s]", xName, idxName)
 	tsName := model.GetTsType(xName)
 	tsIndex := model.GetTsType(idxName)
+
+	fi.Type = fmt.Sprintf("%s[%s]", xName, idxName)
 	fi.TsType = fmt.Sprintf("%s<%s>", tsName, tsIndex)
+	fi.IsGeneric = true
+	fi.GenericTypes = append(fi.GenericTypes, idxName)
 }

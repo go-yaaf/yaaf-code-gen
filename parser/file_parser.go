@@ -108,6 +108,11 @@ func (p *FileParser) checkFilter(filePath string) bool {
 		return true
 	}
 
+	// Check yaaf-common-net
+	if strings.Contains(filePath, "/yaaf-common-net/") {
+		return true
+	}
+
 	return false
 }
 

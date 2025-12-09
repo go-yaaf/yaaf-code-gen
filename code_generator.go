@@ -51,7 +51,7 @@ func (cg *CodeGenerator) Process() error {
 
 	// run the file parser to fill the metamodel
 	if err := cg.parseSourceFiles(); err != nil {
-		return fmt.Errorf("failed to paarse source files: %s", err.Error())
+		return fmt.Errorf("failed to parse source files: %s", err.Error())
 	}
 
 	// fill the dependencies

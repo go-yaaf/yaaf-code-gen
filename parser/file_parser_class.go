@@ -240,8 +240,12 @@ func (p *FileParser) processFieldTag(fi *model.FieldInfo, ci *model.ClassInfo, t
 	}
 	key := strings.ReplaceAll(items[0], "`", "")
 	key = strings.ReplaceAll(key, "\"", "")
+
 	val := strings.ReplaceAll(items[1], "`", "")
 	val = strings.ReplaceAll(val, "\"", "")
+	val = strings.ReplaceAll(val, "omitempty", "")
+	val = strings.ReplaceAll(val, ",", "")
+	val = strings.TrimSpace(val)
 
 	if key == "json" {
 		if val != "-" {

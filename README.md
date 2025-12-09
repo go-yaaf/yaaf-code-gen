@@ -10,6 +10,8 @@ the code base, some common use cases are:
 - Generate documentation
 - Generate tests
 - Generate client-side libraries for REST APIs for the consumers (e.g. TypeScript library, Javascript etc)
+
+
 To make this artifacts always aligned with the latest version and avoid manual updates, the purpose of this
 package is to generate these artifacts based on pre-defined annotations in the code (similar to Java DocGen concepts)
 
@@ -33,20 +35,3 @@ This guide provides an overview of the core components and how to use them.
 
 
 
-
-
-
-
-
-
-
-# yaaf-code-gen
-Code generator utility
-
-This library is used to generate documentation / code / script files based on the go source comments in your Go project.
-This library is based on `go/parser` and `go/ast` packages combine with template engine to parse go source files
-and based on special tokens in the comments, to generate text files for various cases.
-
-Common use cases are:
-* Generate API documentation
-* Generate API client library for various programing languages

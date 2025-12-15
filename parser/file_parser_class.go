@@ -136,6 +136,11 @@ func (p *FileParser) processClassField(idx int, field *ast.Field, ci *model.Clas
 		IsRequired: true,
 	}
 
+	// DEBUG point
+	if ci.Name == "TimeSeriesConsumption" && fi.Name == "Values" {
+		fmt.Println("stop here")
+	}
+
 	switch ft := field.Type.(type) {
 	case *ast.Ident:
 		p.processFieldTypeIdent(fi, ft)
@@ -295,6 +300,7 @@ func (p *FileParser) processFieldTypeArray(fi *model.FieldInfo, arrType *ast.Arr
 	case *ast.IndexExpr:
 		if tmplType, ok := fieldType.X.(*ast.Ident); ok {
 			p.processFieldTypeIdent(fi, tmplType)
+			p.processFieldTypeGeneric(fi, fieldType)
 		} else {
 			//fmt.Println("processFieldTypeArray: error processing type", fi.Name)
 		}
@@ -322,6 +328,8 @@ func (p *FileParser) processFieldTypeMap(fi *model.FieldInfo, mapType *ast.MapTy
 
 	if valType, ok := mapType.Value.(*ast.Ident); ok {
 		valName = valType.Name
+	} else {
+		valName = "any"
 	}
 
 	if keyName == "string" && valName == "any" {

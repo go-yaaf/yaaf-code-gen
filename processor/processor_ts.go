@@ -19,8 +19,10 @@ var tsTypes = map[string]string{
 	"int":       "number",
 	"int32":     "number",
 	"int64":     "number",
+	"uint":      "number",
 	"uint32":    "number",
 	"uint64":    "number",
+	"sint":      "number",
 	"sint32":    "number",
 	"sint64":    "number",
 	"fixed32":   "number",
@@ -117,17 +119,24 @@ func (p *TsProcessor) generateIndexes() {
 
 // getTsType - convert variables types to known TypeScript types
 func getTsType(pType string) string {
+
+	// Handle maps
+	if strings.Contains(pType, "map[") {
+		return getGenericTsMap(pType)
+	}
+
 	// Handle generics
-	if !strings.HasPrefix(pType, "map[") && strings.Contains(pType, "[") {
+	if strings.Contains(pType, "[") && strings.Contains(pType, "]") {
 		return getGenericTsType(pType)
 	}
+
 	if _, ok := tsTypes[pType]; ok {
 		return tsTypes[pType]
 	}
 	return pType
 }
 
-// GetGenericTsType - convert variables generics types to known TypeScript types
+// convert variables generics types to known TypeScript types
 func getGenericTsType(pType string) string {
 	// Extract type and index
 	start := strings.Index(pType, "[")
@@ -139,6 +148,21 @@ func getGenericTsType(pType string) string {
 	yt := getTsType(y)
 
 	return fmt.Sprintf("%s<%s>", xt, yt)
+}
+
+// convert Map generics types to known TypeScript types
+func getGenericTsMap(pType string) string {
+
+	// Extract type and index
+	start := strings.Index(pType, "[")
+	end := strings.Index(pType, "]")
+	x := pType[start+1 : end]
+	xt := getTsType(x)
+
+	y := pType[end+1:]
+	yt := getTsType(y)
+
+	return fmt.Sprintf("Map<%s,%s>", xt, yt)
 }
 
 // Generate TypeScript index

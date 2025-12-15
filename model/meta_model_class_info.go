@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -58,6 +59,7 @@ func (ci *ClassInfo) GetField(fName string) *FieldInfo {
 
 // Fill the dependencies map
 func (ci *ClassInfo) fillDependencies(mm *MetaModel) {
+
 	// Add dependencies for complex fields
 	for _, fi := range ci.Fields {
 		if ci.isGenericFieldType(fi.Type) {
@@ -80,6 +82,13 @@ func (ci *ClassInfo) fillFieldDependencies(fieldType string, fieldTsType string)
 }
 
 func (ci *ClassInfo) fillGenericFieldDependencies(fieldType string) {
+
+	if strings.HasPrefix(fieldType, "map[") {
+		fieldType = strings.ReplaceAll(fieldType, "map[", "")
+		fieldType = strings.ReplaceAll(fieldType, "]", "[")
+		fieldType = fmt.Sprintf("%s]", fieldType)
+	}
+
 	// Extract type and index
 	start := strings.Index(fieldType, "[")
 	end := strings.Index(fieldType, "]")
@@ -104,9 +113,6 @@ func (ci *ClassInfo) isGenericClassIndex(fieldType string) bool {
 }
 
 func (ci *ClassInfo) isGenericFieldType(fieldType string) bool {
-	if strings.HasPrefix(fieldType, "map") {
-		return false
-	}
 	return strings.Contains(fieldType, "[") && strings.Contains(fieldType, "]")
 }
 

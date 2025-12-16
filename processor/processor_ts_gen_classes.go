@@ -40,7 +40,7 @@ func addClassConstructor(class model.ClassInfo) string {
 func addClassImports(class model.ClassInfo) string {
 	output := ""
 	for className, _ := range class.Dependencies {
-		output += fmt.Sprintf("import { %s } from '.';\n", className)
+		output += fmt.Sprintf("import { %s } from './%s';\n", className, className)
 	}
 	return output
 }

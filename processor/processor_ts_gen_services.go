@@ -243,7 +243,7 @@ func addServiceImports(service model.ServiceInfo) string {
 var serviceTsTemplate = `
 import { Injectable, Inject } from '@angular/core';
 import { RestUtils } from '../../rest-utils';
-import { AppConfig } from '../../config';
+import { APP_CONFIG, AppConfig } from '../../config';
 
 {{. | addServiceImports}}
 
@@ -258,7 +258,7 @@ export class {{.TsName}} {
   private baseUrl = '{{.Path}}';
 
   // Class constructor
-  constructor(@Inject('config') private config: AppConfig, private rest: RestUtils) {
+  constructor(@Inject(APP_CONFIG) private config: AppConfig, private rest: RestUtils) {
     this.baseUrl = this.config.api + this.baseUrl;
   }
 

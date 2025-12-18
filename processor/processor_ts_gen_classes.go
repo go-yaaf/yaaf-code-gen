@@ -136,16 +136,8 @@ export class {{.Name}}{{. | genericsParam }}{{template "extend" .}} {
 {{end}}
 {{ if not .IsExtend }}{{. | addConstructor }}{{end}}
 
-{{ if eq .BaseClass "BaseEntityEx" }}
-	valueOF(field: string): any {
-		if (this.props == undefined) {
-			return undefined;
-		} else if (this.props[field] == undefined) {
-			return undefined;
-		} else {
-			return val.props[field];
-		}
-	}
+{{ if eq .Name "BaseEntityEx" }}
+
 {{end}}
 }
 

@@ -34,7 +34,7 @@ var tsTypes = map[string]string{
 	"bytes":     "File",
 	"any":       "any",
 	"Timestamp": "number",
-	"Json":      "Map<string,object>",
+	"Json":      "Record<string,object>",
 }
 
 // TsProcessor - TS processor converts proto files to TypeScript files
@@ -162,7 +162,7 @@ func getGenericTsMap(pType string) string {
 	y := pType[end+1:]
 	yt := getTsType(y)
 
-	return fmt.Sprintf("Map<%s,%s>", xt, yt)
+	return fmt.Sprintf("Record<%s,%s>", xt, yt)
 }
 
 // Generate TypeScript index

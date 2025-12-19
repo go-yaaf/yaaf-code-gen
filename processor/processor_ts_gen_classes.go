@@ -80,7 +80,7 @@ func (p *TsProcessor) handleTsClasses() {
 	tmpl, _ := template.New("base_class.ts.tpl").Funcs(funcMap).Parse(classTsTemplate)
 	for _, class := range classList {
 
-		//if class.Name == "Integration" {
+		//if class.Name == "AccountInfo" {
 		//	fmt.Println("stop here")
 		//}
 		// For parameter classes, do not create TS file

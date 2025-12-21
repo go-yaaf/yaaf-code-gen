@@ -43,7 +43,6 @@ func (ci *ClassInfo) AddField(fName, fType string, doc ...string) {
 	fi := NewFieldInfo(fName, doc...)
 	fi.Json = SmallCaps(fName)
 	fi.Type = fType
-	fi.Sequence = len(ci.Fields) + 1
 	ci.Fields = append(ci.Fields, fi)
 }
 
@@ -64,6 +63,10 @@ func (ci *ClassInfo) fillDependencies(mm *MetaModel) {
 	for _, fi := range ci.Fields {
 		if ci.isGenericFieldType(fi.Type) {
 			ci.fillGenericFieldDependencies(fi.Type)
+			for _, genType := range fi.GenericTypes {
+				yTsType := GetTsType(genType.Value)
+				ci.fillFieldDependencies(genType.Value, yTsType)
+			}
 		} else {
 			ci.fillFieldDependencies(fi.Type, fi.TsType)
 		}
@@ -91,15 +94,15 @@ func (ci *ClassInfo) fillGenericFieldDependencies(fieldType string) {
 
 	// Extract type and index
 	start := strings.Index(fieldType, "[")
-	end := strings.Index(fieldType, "]")
+	//end := strings.Index(fieldType, "]")
 
 	xType := fieldType[0:start]
 	xTsType := GetTsType(xType)
 	ci.fillFieldDependencies(xType, xTsType)
 
-	yType := fieldType[start+1 : end]
-	yTsType := GetTsType(yType)
-	ci.fillFieldDependencies(yType, yTsType)
+	//yType := fieldType[start+1 : end]
+	//yTsType := GetTsType(yType)
+	//ci.fillFieldDependencies(yType, yTsType)
 }
 
 // Check if the field type is not part of the generic type list

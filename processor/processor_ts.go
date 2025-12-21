@@ -120,6 +120,8 @@ func (p *TsProcessor) generateIndexes() {
 // getTsType - convert variables types to known TypeScript types
 func getTsType(pType string) string {
 
+	pType = strings.TrimSpace(pType)
+
 	// Handle maps
 	if strings.Contains(pType, "map[") {
 		return getGenericTsMap(pType)
@@ -142,10 +144,20 @@ func getGenericTsType(pType string) string {
 	start := strings.Index(pType, "[")
 	end := strings.Index(pType, "]")
 	x := pType[0:start]
-	y := pType[start+1 : end]
-
 	xt := getTsType(x)
+
+	y := pType[start+1 : end]
 	yt := getTsType(y)
+
+	// Handle multiple generics arguments
+	if strings.Contains(y, ",") {
+		args := strings.Split(y, ",")
+		tsArgs := make([]string, 0)
+		for _, a := range args {
+			tsArgs = append(tsArgs, getTsType(a))
+		}
+		yt = strings.Join(tsArgs, ", ")
+	}
 
 	return fmt.Sprintf("%s<%s>", xt, yt)
 }

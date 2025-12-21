@@ -12,6 +12,30 @@ import (
 	"github.com/go-yaaf/yaaf-code-gen/model"
 )
 
+var goPrimitiveTypes = map[string]string{
+	"double":   "number",
+	"float":    "number",
+	"float32":  "number",
+	"float64":  "number",
+	"int":      "number",
+	"int32":    "number",
+	"int64":    "number",
+	"uint":     "number",
+	"uint32":   "number",
+	"uint64":   "number",
+	"sint":     "number",
+	"sint32":   "number",
+	"sint64":   "number",
+	"fixed32":  "number",
+	"fixed64":  "number",
+	"sfixed32": "number",
+	"sfixed64": "number",
+	"bool":     "boolean",
+	"string":   "string",
+	"bytes":    "File",
+	"any":      "any",
+}
+
 var parsedFiles = map[string]bool{}
 
 // FileParser is used to parse go file and extract the meta model

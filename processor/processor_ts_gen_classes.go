@@ -18,7 +18,7 @@ import (
 func addClassConstructor(class model.ClassInfo) string {
 	output := "    constructor("
 	for _, field := range class.Fields {
-		output += field.TsName + "?: " + getTsType(field.Type)
+		output += field.TsName + "?: " + field.TsType
 		if field.IsArray {
 			output += "[]"
 		}
@@ -80,9 +80,6 @@ func (p *TsProcessor) handleTsClasses() {
 	tmpl, _ := template.New("base_class.ts.tpl").Funcs(funcMap).Parse(classTsTemplate)
 	for _, class := range classList {
 
-		//if class.Name == "AccountInfo" {
-		//	fmt.Println("stop here")
-		//}
 		// For parameter classes, do not create TS file
 		if !class.IsParam {
 
@@ -132,7 +129,7 @@ var classTsTemplate = `
 export class {{.Name}}{{. | genericsParam }}{{template "extend" .}} {
 {{range .Fields}}
 	// {{range .Docs}}{{.}} {{end}}
-	public {{.Json}}: {{.Type | getTsType }}{{ if .IsArray }}[]{{ end }};
+	public {{.Json}}: {{.TsType }}{{ if .IsArray }}[]{{ end }};
 {{end}}
 {{ if not .IsExtend }}{{. | addConstructor }}{{end}}
 

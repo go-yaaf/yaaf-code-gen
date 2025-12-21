@@ -65,11 +65,6 @@ func (p *FileParser) ParseFile(path string) error {
 		}
 	}
 
-	//fmt.Println("ParseFile:", path)
-	//if path == "/Users/mottyc/go/src/github.com/go-yaaf/yaaf-common/entity/Tuple.go" {
-	//	fmt.Println("stop here")
-	//}
-
 	fSet := token.NewFileSet()
 	result, err := parser.ParseFile(fSet, path, nil, parser.ParseComments)
 	if err != nil {

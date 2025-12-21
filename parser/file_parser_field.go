@@ -309,9 +309,7 @@ func (p *FileParser) processFieldTypeGenericNew(fi *model.FieldInfo, genType *as
 	tsName := model.GetTsType(ident.Name)
 	switch decl := ident.Obj.Decl.(type) {
 	case *ast.Field:
-		fmt.Println(xName)
 		fi.GenericTypes = append(fi.GenericTypes, model.StringKeyValue{Key: decl.Type.(*ast.Ident).Name, Value: xName})
-		//fi.GenericTypes = append(fi.GenericTypes, model.StringKeyValue{Key: decl.Names[0].Name, Value: decl.Type.(*ast.Ident).Name})
 	case *ast.TypeSpec:
 		for _, fl := range decl.TypeParams.List {
 			fi.GenericTypes = append(fi.GenericTypes, model.StringKeyValue{Key: fl.Names[0].Name, Value: fl.Type.(*ast.Ident).Name})
@@ -385,7 +383,6 @@ func (p *FileParser) processFieldTypeGenerics(fi *model.FieldInfo, genTypes *ast
 			canon := fmt.Sprintf("%s[%s]", xname, strings.Join(xList, ","))
 			tsCanon := fmt.Sprintf("%s<%s>", xname, strings.Join(tsList, ","))
 
-			fmt.Println(canon)
 			idxNames = append(idxNames, canon)
 			tsIndexes = append(tsIndexes, tsCanon)
 			p.addFieldGenericTypes(fi, xname, xname)

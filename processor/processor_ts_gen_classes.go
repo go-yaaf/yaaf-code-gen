@@ -42,6 +42,9 @@ func addClassImports(class model.ClassInfo) string {
 	for className, _ := range class.Dependencies {
 		output += fmt.Sprintf("import { %s } from './%s';\n", className, className)
 	}
+	if class.IsExtend {
+		output += fmt.Sprintf("import { ColumnDef } from './ColumnDef';\n")
+	}
 	return output
 }
 

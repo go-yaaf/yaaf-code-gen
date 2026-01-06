@@ -138,7 +138,23 @@ export class {{.Name}}{{. | genericsParam }}{{template "extend" .}} {
 {{end}}
 }
 
+{{ if .IsExtend }}{{template "getColumnDef" .}}{{end}}
+
 {{define "extend"}}{{ if .IsExtend }} extends {{.BaseClass}}{{ end }}{{end}}
+
+
+{{define "getColumnDef"}}
+export function Get{{.Name}}ColumnsDef() : ColumnDef[] {
+    let result : ColumnDef[] = [];
+	result.push(new ColumnDef("", "id", "string", ""));
+	result.push(new ColumnDef("", "createdOn", "number", "datetime"));
+	result.push(new ColumnDef("", "updatedOn", "number", "datetime"));
+	{{range .Fields}}result.push(new ColumnDef("", "{{.Json}}", "{{.TsType}}", "{{.Format}}"));
+	{{end}}
+
+	return result;
+}
+{{end}}
 `
 
 // endregion

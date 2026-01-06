@@ -10,7 +10,7 @@ import (
 	. "github.com/go-yaaf/yaaf-code-gen"
 )
 
-func TestGenerator(t *testing.T) {
+func TestPulseGenerator(t *testing.T) {
 	skipCI(t)
 
 	gen := NewCodeGenerator()

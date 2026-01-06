@@ -120,6 +120,23 @@ func (p *TsProcessor) generateIndexes() {
 // getTsType - convert variables types to known TypeScript types
 func getTsType(pType string) string {
 
+	if !strings.Contains(pType, ",") {
+		return getTsTypeInternal(pType)
+	}
+
+	// In case of generic type with comma-separated list of arguments, (e.g. EntityResponse<Distribution<FlightClassCode,float64>>)
+	// Split arguments, convert each one and join them back
+	typeList := strings.Split(pType, ",")
+	tsTypeList := make([]string, 0)
+	for _, t := range typeList {
+		tsTypeList = append(tsTypeList, getTsTypeInternal(t))
+	}
+	return strings.Join(tsTypeList, ",")
+}
+
+// getTsTypeInternal - convert variables types to known TypeScript types
+func getTsTypeInternal(pType string) string {
+
 	pType = strings.TrimSpace(pType)
 
 	// Handle maps

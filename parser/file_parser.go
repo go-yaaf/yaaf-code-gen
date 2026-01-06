@@ -36,19 +36,19 @@ var goPrimitiveTypes = map[string]string{
 	"any":      "any",
 }
 
-var parsedFiles = map[string]bool{}
-
 // FileParser is used to parse go file and extract the meta model
 type FileParser struct {
-	Model      *model.MetaModel
-	ClassMap   map[string]*model.ClassInfo
-	pathFilter string // Filter to process only files that their path includes the filter
+	Model       *model.MetaModel
+	ClassMap    map[string]*model.ClassInfo
+	pathFilter  string // Filter to process only files that their path includes the filter
+	parsedFiles map[string]bool
 }
 
 func NewFileParser(model *model.MetaModel, filter string) *FileParser {
 	return &FileParser{
-		Model:      model,
-		pathFilter: filter,
+		Model:       model,
+		pathFilter:  filter,
+		parsedFiles: make(map[string]bool),
 	}
 }
 
@@ -59,7 +59,7 @@ func (p *FileParser) ParseFile(path string) error {
 
 	// Check filters
 	// If file was already parsed, skip it
-	if parsed, ok := parsedFiles[path]; ok {
+	if parsed, ok := p.parsedFiles[path]; ok {
 		if parsed {
 			return nil
 		}
@@ -70,7 +70,7 @@ func (p *FileParser) ParseFile(path string) error {
 	if err != nil {
 		return err
 	} else {
-		parsedFiles[path] = true
+		p.parsedFiles[path] = true
 	}
 
 	for _, imp := range result.Imports {

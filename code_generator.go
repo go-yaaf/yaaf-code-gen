@@ -63,8 +63,11 @@ func (cg *CodeGenerator) Process() error {
 
 // Parse all files in the list of folders and fill the metamodel
 func (cg *CodeGenerator) parseSourceFiles() error {
+	fileParser := parser.NewFileParser(cg.Model, cg.pathFilter)
 	for folder, _ := range cg.sourceFolders {
-		if err := filepath.Walk(folder, cg.parseFile); err != nil {
+		if err := filepath.Walk(folder, func(filePath string, info os.FileInfo, err error) error {
+			return cg.parseFile(fileParser, filePath, info, err)
+		}); err != nil {
 			return err
 		}
 	}
@@ -72,14 +75,14 @@ func (cg *CodeGenerator) parseSourceFiles() error {
 }
 
 // Parse specific file
-func (cg *CodeGenerator) parseFile(filePath string, info os.FileInfo, err error) error {
+func (cg *CodeGenerator) parseFile(fileParser *parser.FileParser, filePath string, info os.FileInfo, err error) error {
 	if err != nil {
 		return err
 	}
 
 	if path.Ext(filePath) == ".go" {
 		if cg.checkFilter(filePath) {
-			if e := parser.NewFileParser(cg.Model, cg.pathFilter).ParseFile(filePath); e != nil {
+			if e := fileParser.ParseFile(filePath); e != nil {
 				fmt.Println("error", e.Error())
 			}
 		}

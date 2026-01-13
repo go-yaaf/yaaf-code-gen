@@ -78,28 +78,51 @@ func (s *ServiceInfo) addDependency(name string) {
 
 // Replace all aliases
 func (s *ServiceInfo) replaceAliases(pi *PackageInfo) {
-
 	// for every method
 	for _, mi := range s.Methods {
-		// TODO: replace Path parameters
+		// Replace Path parameters
 		//for _, pp := range mi.PathParams {
-		//	s.addDependency(pp.Type)
+		//	pp.Type = replaceClassNode(pp.Type, pi)
 		//}
 
-		// TODO: replace Query parameters
+		// Replace Query parameters
 		//for _, qp := range mi.QueryParams {
-		//	s.addDependency(qp.Type)
+		//	qp.Type = replaceClassNode(qp.Type, pi)
 		//}
 
-		// TODO: replace Body parameter
+		// Replace Body parameter
 		//if mi.BodyParam != nil {
-		//	tn := NewTypeNode(mi.BodyParam.Type)
-		//	s.addNodeDependencies(tn)
+		//	mi.BodyParam.Type = replaceClassNode(mi.BodyParam.Type, pi)
 		//}
 
-		// Check Return parameter
+		// Replace Return parameter
 		replaceTypeNode(mi.ReturnType, pi)
+		replaceClassNode(mi.ReturnClass, pi)
 	}
+}
+
+// replaceClassNode will replace all aliases in a generic class string like EntityResponse<StringIntValue<int>>
+func replaceClassNode(class string, pi *PackageInfo) string {
+	// Split the generic class string into parts
+	parts := strings.FieldsFunc(class, func(r rune) bool {
+		return r == '<' || r == '>' || r == ','
+	})
+
+	// Replace each part with its alias if it exists
+	for i, part := range parts {
+		if alias, ok := pi.Aliases[strings.TrimSpace(part)]; ok {
+			parts[i] = alias
+		}
+	}
+
+	// Rejoin the parts back into a generic class string
+	result := parts[0]
+	if len(parts) > 1 {
+		result += "<"
+		result += strings.Join(parts[1:], ", ")
+		result += ">"
+	}
+	return result
 }
 
 func replaceTypeNode(node *TypeNode, pi *PackageInfo) {

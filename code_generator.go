@@ -54,6 +54,8 @@ func (cg *CodeGenerator) Process() error {
 		return fmt.Errorf("failed to parse source files: %s", err.Error())
 	}
 
+	// replace all aliases
+
 	// fill the dependencies
 	cg.Model.FillDependencies()
 

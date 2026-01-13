@@ -39,3 +39,15 @@ func (p *PackageInfo) fillDependencies(mm *MetaModel) {
 func (p *PackageInfo) AddAlias(alias, name string) {
 	p.Aliases[alias] = name
 }
+
+// ReplaceAliases replace all aliases
+func (p *PackageInfo) replaceAliases(mm *MetaModel) {
+	for _, pkg := range mm.Packages {
+		//for _, ci := range pkg.Classes {
+		//	ci.replaceAliases(pkg)
+		//}
+		for _, si := range pkg.Services {
+			si.replaceAliases(pkg)
+		}
+	}
+}

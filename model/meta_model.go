@@ -103,6 +103,12 @@ func (m *MetaModel) FillDependencies() {
 	}
 }
 
+func (m *MetaModel) ReplaceAliases() {
+	for _, pkg := range m.Packages {
+		pkg.replaceAliases(m)
+	}
+}
+
 // endregion
 
 // region Internal helper functions ------------------------------------------------------------------------------------

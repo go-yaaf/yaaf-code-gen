@@ -76,6 +76,34 @@ func (s *ServiceInfo) addDependency(name string) {
 	}
 }
 
+// Replace all aliases
+func (s *ServiceInfo) replaceAliases(pi *PackageInfo) {
+
+	// for every method
+	for _, mi := range s.Methods {
+		// TODO: replace Path parameters
+		//for _, pp := range mi.PathParams {
+		//	s.addDependency(pp.Type)
+		//}
+
+		// TODO: replace Query parameters
+		//for _, qp := range mi.QueryParams {
+		//	s.addDependency(qp.Type)
+		//}
+
+		// TODO: replace Body parameter
+		//if mi.BodyParam != nil {
+		//	tn := NewTypeNode(mi.BodyParam.Type)
+		//	s.addNodeDependencies(tn)
+		//}
+
+		// Check Return parameter
+		if returnClass, ok := pi.Aliases[mi.ReturnClass]; ok {
+			mi.SetReturnType(returnClass)
+		}
+	}
+}
+
 // MethodInfo service method information
 type MethodInfo struct {
 	Name              string       // Name of the service method

@@ -2,8 +2,9 @@ package parser
 
 import (
 	"fmt"
-	"github.com/go-yaaf/yaaf-code-gen/model"
 	"go/ast"
+
+	"github.com/go-yaaf/yaaf-code-gen/model"
 )
 
 // process entity type
@@ -112,4 +113,23 @@ func (p *FileParser) processClassGenericsParams(ci *model.ClassInfo, params *ast
 			}
 		}
 	}
+}
+
+// process alias type
+func (p *FileParser) processAliasType(ti *model.TypeInfo, decl *ast.GenDecl) error {
+	if len(decl.Specs) < 1 {
+		return fmt.Errorf("no specs found")
+	}
+
+	switch spec := decl.Specs[0].(type) {
+	case *ast.TypeSpec:
+		break
+	case *ast.ImportSpec:
+		return nil
+	default:
+		return fmt.Errorf("unknown spec type %T", spec)
+	}
+
+	p.Model.AddAlias(ti.PackageFullName, ti.Name, ti.Alias)
+	return nil
 }

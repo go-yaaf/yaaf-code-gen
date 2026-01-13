@@ -163,6 +163,8 @@ func (p *FileParser) processType(pkgName string, decl *ast.GenDecl) error {
 		return p.processEntityType(ti, decl)
 	case "@Data":
 		return p.processDataType(ti, decl)
+	case "@Alias":
+		return p.processAliasType(ti, decl)
 	case "@Enum":
 		return p.processEnumType(ti, decl)
 	case "@EnumValues":
@@ -195,6 +197,9 @@ func (p *FileParser) processTypeComments(ti *model.TypeInfo, groups ...*ast.Comm
 				ti.Type = "@Entity"
 			} else if strings.HasPrefix(line, "@Data") {
 				ti.Type = "@Data"
+			} else if strings.HasPrefix(line, "@Alias") {
+				ti.Alias = p.getTagValue(line, "@Alias:")
+				ti.Type = "@Alias"
 			} else if strings.HasPrefix(line, "@EnumValuesFor") {
 				ti.TableName = p.getTagValue(line, "@EnumValuesFor:")
 				ti.Type = "@EnumValues"

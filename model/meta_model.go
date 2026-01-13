@@ -46,6 +46,12 @@ func (m *MetaModel) AddClassInfo(ci *ClassInfo) {
 	pkg.Classes[ci.Name] = ci
 }
 
+// AddAlias add new type alias
+func (m *MetaModel) AddAlias(packageName string, alias, name string) {
+	pkg := m.GetPackage(packageName)
+	pkg.AddAlias(alias, name)
+}
+
 // AddEnumInfo add new class to the model
 func (m *MetaModel) AddEnumInfo(ei *EnumInfo) {
 	pkg := m.GetPackage(ei.PackageFullName)

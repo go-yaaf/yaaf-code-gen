@@ -8,6 +8,7 @@ type PackageInfo struct {
 	Enums    map[string]*EnumInfo      // Map of enums in package
 	Services map[string]*ServiceInfo   // Map of services in package
 	Sockets  map[string]*WebSocketInfo // Map of web sockets
+	Aliases  map[string]string         // Map of type aliases
 }
 
 func NewPackageInfo(name string) *PackageInfo {
@@ -18,6 +19,7 @@ func NewPackageInfo(name string) *PackageInfo {
 		Enums:    make(map[string]*EnumInfo),
 		Services: make(map[string]*ServiceInfo),
 		Sockets:  make(map[string]*WebSocketInfo),
+		Aliases:  make(map[string]string),
 	}
 }
 
@@ -31,4 +33,9 @@ func (p *PackageInfo) fillDependencies(mm *MetaModel) {
 			si.fillDependencies(mm)
 		}
 	}
+}
+
+// AddAlias add entry to aliases
+func (p *PackageInfo) AddAlias(alias, name string) {
+	p.Aliases[alias] = name
 }

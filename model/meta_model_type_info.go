@@ -11,10 +11,11 @@ type TypeInfo struct {
 	Docs             []string // Class documentation
 	TableName        string   // Name of table (in case it is a persistent entity in database
 	Type             string   // Meta type
+	Alias            string   // Alias to another type name
 	Headers          []string // List of Http headers (common to all service methods)
 	Group            string   // Name of the service group
 	Context          string   // Context (objects)
-	Path             string   // Context (objects)
+	Path             string   // Path of the service
 }
 
 func NewTypeInfo(name string) *TypeInfo {

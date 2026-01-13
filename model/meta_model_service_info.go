@@ -98,10 +98,19 @@ func (s *ServiceInfo) replaceAliases(pi *PackageInfo) {
 		//}
 
 		// Check Return parameter
-		if returnClass, ok := pi.Aliases[mi.ReturnClass]; ok {
-			mi.ReturnClass = returnClass
-			mi.SetReturnType(returnClass)
-		}
+		replaceTypeNode(mi.ReturnType, pi)
+	}
+}
+
+func replaceTypeNode(node *TypeNode, pi *PackageInfo) {
+	if node == nil {
+		return
+	}
+	for _, arg := range node.Args {
+		replaceTypeNode(arg, pi)
+	}
+	if returnClass, ok := pi.Aliases[node.Name]; ok {
+		node.Name = returnClass
 	}
 }
 

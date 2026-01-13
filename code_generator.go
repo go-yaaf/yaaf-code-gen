@@ -55,6 +55,7 @@ func (cg *CodeGenerator) Process() error {
 	}
 
 	// replace all aliases
+	cg.Model.ReplaceAliases()
 
 	// fill the dependencies
 	cg.Model.FillDependencies()

@@ -99,6 +99,7 @@ func (s *ServiceInfo) replaceAliases(pi *PackageInfo) {
 
 		// Check Return parameter
 		if returnClass, ok := pi.Aliases[mi.ReturnClass]; ok {
+			mi.ReturnClass = returnClass
 			mi.SetReturnType(returnClass)
 		}
 	}

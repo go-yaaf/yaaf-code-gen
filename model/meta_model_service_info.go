@@ -71,6 +71,9 @@ func (s *ServiceInfo) addDependency(name string) {
 		return
 	}
 
+	// remove array mark
+	name = strings.Replace(name, "[]", "", -1)
+
 	if isNative, arr := isNativeType(name); isNative == false {
 		s.Dependencies[name] = arr
 	}

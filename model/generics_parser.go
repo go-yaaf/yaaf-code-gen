@@ -66,6 +66,12 @@ func (p *genericsParser) parseType() (*TypeNode, error) {
 
 	node := &TypeNode{Name: name}
 
+	// Handle array types
+	if strings.HasPrefix(name, "[]") {
+		node.Name = name[2:]
+		node.IsArray = true
+	}
+
 	p.skipSpaces()
 	if p.peek() != '<' {
 		// no generics

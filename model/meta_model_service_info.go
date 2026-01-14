@@ -308,8 +308,9 @@ func NewParamInfo(name string) *ParamInfo {
 }
 
 type TypeNode struct {
-	Name string      `json:"name"`
-	Args []*TypeNode `json:"args,omitempty"`
+	Name    string      `json:"name"`
+	IsArray bool        `json:"isArray,omitempty"`
+	Args    []*TypeNode `json:"args,omitempty"`
 }
 
 func NewTypeNode(input string) *TypeNode {

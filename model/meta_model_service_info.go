@@ -290,7 +290,7 @@ func (m *MethodInfo) SetReturnType(returnClass string) {
 // GetTsReturnType build the TypeScript representation of the return type
 func (m *MethodInfo) GetTsReturnType() string {
 	if m.ReturnType == nil {
-		return ""
+		return "void"
 	}
 	return buildTsType(m.ReturnType)
 }
@@ -301,11 +301,7 @@ func buildTsType(node *TypeNode) string {
 	}
 
 	var builder strings.Builder
-
-	builder.WriteString(GetTsType(node.Name))
-	if node.IsArray {
-		builder.WriteString("[]")
-	}
+	builder.WriteString(node.Name)
 
 	if len(node.Args) > 0 {
 		builder.WriteString("<")
@@ -316,6 +312,10 @@ func buildTsType(node *TypeNode) string {
 			}
 		}
 		builder.WriteString(">")
+	}
+
+	if node.IsArray {
+		builder.WriteString("[]")
 	}
 	return builder.String()
 }

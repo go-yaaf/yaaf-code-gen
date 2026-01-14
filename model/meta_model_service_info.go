@@ -301,7 +301,7 @@ func buildTsType(node *TypeNode) string {
 	}
 
 	var builder strings.Builder
-	builder.WriteString(node.Name)
+	builder.WriteString(GetTsType(node.Name))
 
 	if len(node.Args) > 0 {
 		builder.WriteString("<")

@@ -287,6 +287,39 @@ func (m *MethodInfo) SetReturnType(returnClass string) {
 	m.ReturnType = NewTypeNode(returnClass)
 }
 
+// GetTsReturnType build the TypeScript representation of the return type
+func (m *MethodInfo) GetTsReturnType() string {
+	if m.ReturnType == nil {
+		return ""
+	}
+	return buildTsType(m.ReturnType)
+}
+
+func buildTsType(node *TypeNode) string {
+	if node == nil {
+		return ""
+	}
+
+	var builder strings.Builder
+
+	builder.WriteString(GetTsType(node.Name))
+	if node.IsArray {
+		builder.WriteString("[]")
+	}
+
+	if len(node.Args) > 0 {
+		builder.WriteString("<")
+		for i, arg := range node.Args {
+			builder.WriteString(buildTsType(arg))
+			if i < len(node.Args)-1 {
+				builder.WriteString(", ")
+			}
+		}
+		builder.WriteString(">")
+	}
+	return builder.String()
+}
+
 // ParamInfo method parameter information
 type ParamInfo struct {
 	Name      string   // Parameter name

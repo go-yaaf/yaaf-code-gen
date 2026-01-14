@@ -155,7 +155,9 @@ func methodContent(methodInfo model.MethodInfo) string {
 		return content + functionLine
 	}
 
-	returnType := convertToTypeScript(methodInfo.ReturnClass)
+	// returnType := convertToTypeScript(methodInfo.ReturnClass)
+
+	returnType := methodInfo.GetTsReturnType()
 	functionLine := fmt.Sprintf(
 		"return this.rest.%s<%s>(`${this.baseUrl}%s`%s%s);",
 		strings.ToLower(methodInfo.Method),

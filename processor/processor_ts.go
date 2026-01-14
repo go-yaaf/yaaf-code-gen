@@ -208,19 +208,19 @@ func (p *TsProcessor) generateIndexTs(data []string, folder string) {
 	}
 }
 
-func convertToTypeScript(name string) string {
-	tokens := strings.Split(name, "<")
-	types := make([]string, 0)
-	for _, token := range tokens {
-		types = append(types, strings.ReplaceAll(token, ">", ""))
-	}
-
-	for _, t := range types {
-		tsType := getTsType(t)
-		if tsType != t {
-			name = strings.ReplaceAll(name, t, tsType)
-		}
-	}
-
-	return name
-}
+//func convertToTypeScript(name string) string {
+//	tokens := strings.Split(name, "<")
+//	types := make([]string, 0)
+//	for _, token := range tokens {
+//		types = append(types, strings.ReplaceAll(token, ">", ""))
+//	}
+//
+//	for _, t := range types {
+//		tsType := getTsType(t)
+//		if tsType != t {
+//			name = strings.ReplaceAll(name, t, tsType)
+//		}
+//	}
+//
+//	return name
+//}

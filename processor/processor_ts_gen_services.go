@@ -36,7 +36,9 @@ func (p *TsProcessor) handleTsServices() {
 
 	var list []string
 
-	tmpl, _ := template.New("base_service.ts.tpl").Funcs(funcMap).Parse(serviceTsTemplate)
+	tp := GetExternalTemplate("service", serviceTsTemplate, funcMap)
+	tmpl, _ := template.New("base_service.ts.tpl").Funcs(tp.FuncMap).Parse(tp.Template)
+
 	for _, service := range serviceList {
 
 		fName := service.Name
@@ -79,6 +81,7 @@ func (p *TsProcessor) generateServicesExports() {
 	if len(content) == 0 {
 		return
 	}
+
 	tmpl, _ := template.New("services.index.ts.tpl").Parse(servicesIndexTsTemplate)
 	fileName := path.Join(p.Output, "services.export.ts")
 

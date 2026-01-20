@@ -36,7 +36,8 @@ func (p *TsProcessor) handleTsEnums() {
 
 	var list []string
 
-	tmpl, _ := template.New("base_enum.ts.tpl").Funcs(funcMap).Parse(enumTsTemplate)
+	tp := GetExternalTemplate("enum", enumTsTemplate, funcMap)
+	tmpl, _ := template.New("base_enum.ts.tpl").Funcs(tp.FuncMap).Parse(tp.Template)
 	for _, enum := range enumList {
 		list = append(list, enum.Name)
 		fileName := path.Join(folder, fmt.Sprintf("%s.ts", enum.Name))

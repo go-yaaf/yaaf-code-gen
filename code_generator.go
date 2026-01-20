@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
 	"github.com/go-yaaf/yaaf-code-gen/parser"
@@ -18,7 +19,6 @@ type CodeGenerator struct {
 	targetFolder  string            // Root target folder for the artifacts
 	pathFilter    string            // Filter to process only files that their path includes the filter
 	Model         *model.MetaModel  // The generated abstract model
-	//processors    map[string]Processor // Map of artifacts processors (?)
 }
 
 func NewCodeGenerator() *CodeGenerator {
@@ -43,6 +43,24 @@ func (cg *CodeGenerator) WithTargetFolder(path string) *CodeGenerator {
 // WithPathFilter sets the filter to process only files that their path includes the filter
 func (cg *CodeGenerator) WithPathFilter(filter string) *CodeGenerator {
 	cg.pathFilter = filter
+	return cg
+}
+
+// WithEnumTemplate sets the enum template and map of functions
+func (cg *CodeGenerator) WithEnumTemplate(template string, funcMap template.FuncMap) *CodeGenerator {
+	processor.AddExternalTemplate("enum", template, funcMap)
+	return cg
+}
+
+// WithClassTemplate sets the class template and map of functions
+func (cg *CodeGenerator) WithClassTemplate(template string, funcMap template.FuncMap) *CodeGenerator {
+	processor.AddExternalTemplate("class", template, funcMap)
+	return cg
+}
+
+// WithServiceTemplate sets the service template and map of functions
+func (cg *CodeGenerator) WithServiceTemplate(template string, funcMap template.FuncMap) *CodeGenerator {
+	processor.AddExternalTemplate("service", template, funcMap)
 	return cg
 }
 

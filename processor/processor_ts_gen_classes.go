@@ -80,7 +80,8 @@ func (p *TsProcessor) handleTsClasses() {
 	folder := path.Join(p.Output, "model")
 	p.makeDir(folder)
 
-	tmpl, _ := template.New("base_class.ts.tpl").Funcs(funcMap).Parse(classTsTemplate)
+	tp := GetExternalTemplate("class", classTsTemplate, funcMap)
+	tmpl, _ := template.New("base_class.ts.tpl").Funcs(tp.FuncMap).Parse(tp.Template)
 	for _, class := range classList {
 
 		// For parameter classes, do not create TS file

@@ -101,6 +101,8 @@ func (p *FileParser) processFieldComments(fi *model.FieldInfo, ci *model.ClassIn
 			return false
 		} else if strings.HasPrefix(line, "@Json:") {
 			fi.Json = p.getTagValue(line, "@Json:")
+		} else if strings.HasPrefix(line, "@Type:") {
+			fi.TsType = p.getTagValue(line, "@Type:")
 		} else if strings.HasPrefix(line, "@Alias:") {
 			fi.Alias = p.getTagValue(line, "@Alias:")
 		} else if strings.HasPrefix(line, "@Format:") {

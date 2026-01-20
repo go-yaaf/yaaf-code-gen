@@ -233,10 +233,12 @@ func (p *FileParser) processFieldTypeMap(fi *model.FieldInfo, mapType *ast.MapTy
 		fi.Type = "Json"
 		fi.TsType = model.GetTsType(fi.Type)
 	} else {
-		fi.Type = fmt.Sprintf("map[%s]%s", keyName, valName)
-		tsKey := model.GetTsType(keyName)
-		tsVal := model.GetTsType(valName)
-		fi.TsType = fmt.Sprintf("Map<%s,%s>", tsKey, tsVal)
+		//fi.Type = fmt.Sprintf("map[%s]%s", keyName, valName)
+		//tsKey := model.GetTsType(keyName)
+		//tsVal := model.GetTsType(valName)
+		//fi.TsType = fmt.Sprintf("Map<%s,%s>", tsKey, tsVal)
+		fi.Type = "Json"
+		fi.TsType = model.GetTsType(fi.Type)
 	}
 }
 

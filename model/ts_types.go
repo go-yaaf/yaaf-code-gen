@@ -28,8 +28,8 @@ var tsTypes = map[string]string{
 	"bytes":     "File",
 	"any":       "any",
 	"Timestamp": "number",
-	//"Json":          "Map<string,object>",
-	"Json":          "any",
+	"Json":      "Record<string,any>",
+	//"Json":          "any",
 	"StreamContent": "File",
 }
 

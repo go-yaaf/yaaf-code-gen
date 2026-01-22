@@ -33,5 +33,7 @@ go get -u github.com/go-yaaf/yaaf-code-gen
 
 This guide provides an overview of the core components and how to use them.
 
+# Track Changes
+22-Jan-2026 - Change mapping of Json to Record<string, any> instead of any.
 
 

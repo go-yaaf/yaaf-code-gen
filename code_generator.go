@@ -17,7 +17,7 @@ import (
 type CodeGenerator struct {
 	sourceFolders map[string]string // Map of source folders to namespaces
 	targetFolder  string            // Root target folder for the artifacts
-	pathFilter    string            // Filter to process only files that their path includes the filter
+	pathFilters   []string          // Filter to process only files that their path includes the filter
 	Model         *model.MetaModel  // The generated abstract model
 }
 
@@ -25,6 +25,7 @@ func NewCodeGenerator() *CodeGenerator {
 	return &CodeGenerator{
 		Model:         model.NewMetaModel(),
 		sourceFolders: make(map[string]string),
+		pathFilters:   make([]string, 0),
 	}
 }
 
@@ -40,9 +41,9 @@ func (cg *CodeGenerator) WithTargetFolder(path string) *CodeGenerator {
 	return cg
 }
 
-// WithPathFilter sets the filter to process only files that their path includes the filter
+// WithPathFilter add a filter to process only files that their path includes the filter
 func (cg *CodeGenerator) WithPathFilter(filter string) *CodeGenerator {
-	cg.pathFilter = filter
+	cg.pathFilters = append(cg.pathFilters, filter)
 	return cg
 }
 
@@ -84,7 +85,7 @@ func (cg *CodeGenerator) Process() error {
 
 // Parse all files in the list of folders and fill the metamodel
 func (cg *CodeGenerator) parseSourceFiles() error {
-	fileParser := parser.NewFileParser(cg.Model, cg.pathFilter)
+	fileParser := parser.NewFileParser(cg.Model, cg.pathFilters)
 	for folder, _ := range cg.sourceFolders {
 		if err := filepath.Walk(folder, func(filePath string, info os.FileInfo, err error) error {
 			return cg.parseFile(fileParser, filePath, info, err)
@@ -113,13 +114,15 @@ func (cg *CodeGenerator) parseFile(fileParser *parser.FileParser, filePath strin
 
 // Check file path filter
 func (cg *CodeGenerator) checkFilter(filePath string) bool {
-	if len(cg.pathFilter) == 0 {
+	if len(cg.pathFilters) == 0 {
 		return true
 	}
 
-	// Check the filter
-	if strings.Contains(filePath, cg.pathFilter) {
-		return true
+	// Check the filters
+	for _, filter := range cg.pathFilters {
+		if strings.Contains(filePath, filter) {
+			return true
+		}
 	}
 
 	// Check yaaf-common

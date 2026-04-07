@@ -40,14 +40,14 @@ var goPrimitiveTypes = map[string]string{
 type FileParser struct {
 	Model       *model.MetaModel
 	ClassMap    map[string]*model.ClassInfo
-	pathFilter  string // Filter to process only files that their path includes the filter
+	pathFilters []string // Filter to process only files that their path includes the filters list
 	parsedFiles map[string]bool
 }
 
-func NewFileParser(model *model.MetaModel, filter string) *FileParser {
+func NewFileParser(model *model.MetaModel, filters []string) *FileParser {
 	return &FileParser{
 		Model:       model,
-		pathFilter:  filter,
+		pathFilters: filters,
 		parsedFiles: make(map[string]bool),
 	}
 }
@@ -91,7 +91,6 @@ func (p *FileParser) ParseFile(path string) error {
 }
 
 func (p *FileParser) ParseFolder(folderPath string) {
-
 	if files, err := os.ReadDir(folderPath); err == nil {
 		for _, fe := range files {
 			filePath := path.Join(folderPath, fe.Name())
@@ -113,13 +112,15 @@ func (p *FileParser) getAbsolutePath(relPath string) string {
 }
 
 func (p *FileParser) checkFilter(filePath string) bool {
-	if len(p.pathFilter) == 0 {
+	if len(p.pathFilters) == 0 {
 		return true
 	}
 
-	// Check the filter
-	if strings.Contains(filePath, p.pathFilter) {
-		return true
+	// Check the filters
+	for _, filter := range p.pathFilters {
+		if strings.Contains(filePath, filter) {
+			return true
+		}
 	}
 
 	// Check yaaf-common

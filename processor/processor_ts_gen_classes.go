@@ -39,12 +39,24 @@ func addClassConstructor(class model.ClassInfo) string {
 // Add class imports based on the class dependencies
 func addClassImports(class model.ClassInfo) string {
 	output := ""
+	types := make([]string, 0)
 	for className, _ := range class.Dependencies {
-		output += fmt.Sprintf("import { %s } from './%s';\n", className, className)
+		types = append(types, className)
 	}
-	if class.IsExtend {
-		output += fmt.Sprintf("import { ColumnDef } from './ColumnDef';\n")
+	if len(types) == 0 {
+		return output
 	}
+
+	output = fmt.Sprintf("import { %s } from '.';\n", strings.Join(types, ", "))
+
+	p := GetTsProcessor()
+	factories := p.Model.GetFactoryMethods(types)
+	if len(factories) == 0 {
+		return output
+	} else {
+		output += fmt.Sprintf("import { %s } from '.';\n", strings.Join(factories, ", "))
+	}
+
 	return output
 }
 
@@ -60,6 +72,28 @@ func genericsParam(class model.ClassInfo) string {
 	}
 }
 
+func addNewInstance(class model.ClassInfo) string {
+	builder := strings.Builder{}
+
+	builder.WriteString(fmt.Sprintf("export function New%s() : %s {\n", class.Name, class.Name))
+	builder.WriteString(fmt.Sprintf("\tlet result : %s = new %s();\n", class.Name, class.Name))
+
+	// Add fields
+	p := GetTsProcessor()
+	fields := p.Model.GetAllClassFields(class.Name)
+	for _, field := range fields {
+		if field.IsArray {
+			builder.WriteString(fmt.Sprintf("\tresult.%s = [];\n", field.TsName))
+		} else if len(field.DefaultValue) > 0 {
+			builder.WriteString(fmt.Sprintf("\tresult.%s = %s;\n", field.Json, field.DefaultValue))
+		}
+	}
+
+	builder.WriteString("\treturn result;\n")
+	builder.WriteString("}")
+	return builder.String()
+}
+
 // Generate classes
 func (p *TsProcessor) handleTsClasses() {
 	funcMap := template.FuncMap{
@@ -68,6 +102,7 @@ func (p *TsProcessor) handleTsClasses() {
 		"addConstructor": addClassConstructor,
 		"join":           strings.Join,
 		"genericsParam":  genericsParam,
+		"addNewInstance": addNewInstance,
 	}
 
 	var classList []model.ClassInfo
@@ -125,6 +160,8 @@ func (p *TsProcessor) handleTsClasses() {
 
 // region TypeScript class file template -------------------------------------------------------------------------------
 
+// Add this line only if it is required to add columns definitions
+// {{ if .IsExtend }}{{template "getColumnDef" .}}{{end}}
 var classTsTemplate = `
 {{. | addImports}}
 
@@ -142,7 +179,11 @@ export class {{.Name}}{{. | genericsParam }}{{template "extend" .}} {
 {{end}}
 }
 
-{{ if .IsExtend }}{{template "getColumnDef" .}}{{end}}
+
+
+// New empty instance
+{{. | addNewInstance}}
+
 
 {{define "extend"}}{{ if .IsExtend }} extends {{.BaseClass}}{{ end }}{{end}}
 
@@ -159,6 +200,7 @@ export function Get{{.Name}}ColumnsDef() : ColumnDef[] {
 	return result;
 }
 {{end}}
+
 `
 
 // endregion

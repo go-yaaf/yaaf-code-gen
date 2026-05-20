@@ -109,6 +109,81 @@ func (m *MetaModel) ReplaceAliases() {
 	}
 }
 
+// GetAllClassFields return an array of field info for all class fields
+func (m *MetaModel) GetAllClassFields(className string) []*FieldInfo {
+	result := make([]*FieldInfo, 0)
+	m.getAllClassFields(className, &result)
+
+	// fill default value
+	for _, fi := range result {
+		fi.DefaultValue = m.getDefaultValue(fi.TsType)
+	}
+	return result
+}
+
+// getAllClassFields internal recursive function to return an array of field info for all class fields
+func (m *MetaModel) getAllClassFields(className string, arr *[]*FieldInfo) {
+	ci := m.FindClass(className)
+	if ci == nil {
+		return
+	}
+	// Get parent class fields
+	if len(ci.BaseClass) > 0 {
+		m.getAllClassFields(ci.BaseClass, arr)
+	}
+	for _, field := range ci.Fields {
+		*arr = append(*arr, field)
+	}
+}
+
+// GetFactoryMethods accepts type list and return factory methods for all types that are complex classes
+func (m *MetaModel) GetFactoryMethods(list []string) []string {
+	result := make([]string, 0)
+
+	for _, className := range list {
+		if ci := m.FindClass(className); ci != nil {
+			result = append(result, fmt.Sprintf("New%s", className))
+		}
+	}
+
+	return result
+}
+
+// FindClass find class info in all the packages
+func (m *MetaModel) FindClass(className string) *ClassInfo {
+	for _, pkg := range m.Packages {
+		for _, ci := range pkg.Classes {
+			if ci.Name == className {
+				return ci
+			}
+		}
+	}
+	return nil
+}
+
+func (m *MetaModel) getDefaultValue(tsType string) string {
+	// First find primitive types
+	if tsType == "string" {
+		return "''"
+	}
+	if tsType == "number" {
+		return "0"
+	}
+	if tsType == "boolean" {
+		return "false"
+	}
+	if tsType == "any" || tsType == "Json" {
+		return "{}"
+	}
+	if ei := m.GetEnum(tsType); ei != nil {
+		return "0"
+	}
+	if ci := m.FindClass(tsType); ci != nil {
+		return fmt.Sprintf("New%s()", tsType)
+	}
+	return ""
+}
+
 // endregion
 
 // region Internal helper functions ------------------------------------------------------------------------------------

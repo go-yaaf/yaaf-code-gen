@@ -24,6 +24,7 @@ type FieldInfo struct {
 	GenericTypes []StringKeyValue // List of generics name to type
 	Docs         []string         // Field documentation
 	ParamType    string           // How parameter is passed: Query | Path | Body
+	DefaultValue string           // String representation of the field's default value
 }
 
 func NewFieldInfo(name string, doc ...string) *FieldInfo {

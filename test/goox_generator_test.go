@@ -28,7 +28,7 @@ func TestGooXGenerator(t *testing.T) {
 	gen.WithPathFilter("/github.com/mottyc/")
 
 	// Output folder
-	outDir := fmt.Sprintf("%s/src/github.com/mottyc/goox-api/client_lib/ng-workspace/projects/ngx-goox-lib2/src/lib", gp)
+	outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/test_out", gp)
 	err := os.MkdirAll(outDir, os.ModePerm)
 	require.Nil(t, err)
 

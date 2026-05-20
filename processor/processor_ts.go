@@ -37,6 +37,8 @@ var tsTypes = map[string]string{
 	"Json":      "Record<string,object>",
 }
 
+var tsProcessorInst *TsProcessor = nil
+
 // TsProcessor - TS processor converts proto files to TypeScript files
 type TsProcessor struct {
 	BaseProcessor
@@ -44,10 +46,15 @@ type TsProcessor struct {
 
 // NewTsProcessor - Factory method
 func NewTsProcessor(model *model.MetaModel, output string) Processor {
-	return &TsProcessor{BaseProcessor{
+	tsProcessorInst = &TsProcessor{BaseProcessor{
 		Output: output,
 		Model:  model,
 	}}
+	return tsProcessorInst
+}
+
+func GetTsProcessor() *TsProcessor {
+	return tsProcessorInst
 }
 
 // var classPackageMap = make(map[string]string)

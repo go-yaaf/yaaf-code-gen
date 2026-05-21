@@ -39,15 +39,20 @@ func addClassConstructor(class model.ClassInfo) string {
 
 // Add class imports based on the class dependencies
 func addClassImports(class model.ClassInfo) string {
-	types := make([]string, 0)
-	for className, _ := range class.Dependencies {
-		types = append(types, className)
-	}
-	if len(types) == 0 {
-		return ""
-	}
+	//types := make([]string, 0)
+	//for className, _ := range class.Dependencies {
+	//	types = append(types, className)
+	//}
+	//if len(types) == 0 {
+	//	return ""
+	//}
+	//return fmt.Sprintf("import { %s } from '.';\n", strings.Join(types, ", "))
 
-	return fmt.Sprintf("import { %s } from '.';\n", strings.Join(types, ", "))
+	output := ""
+	for className, _ := range class.Dependencies {
+		output += fmt.Sprintf("import { %s } from './%s';\n", className, className)
+	}
+	return output
 }
 
 // Add class factory functions imports based on the class dependencies

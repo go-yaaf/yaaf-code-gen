@@ -94,6 +94,10 @@ func genericsParam(class model.ClassInfo) string {
 }
 
 func addNewInstance(class model.ClassInfo) string {
+	if class.IsGeneric {
+		return ""
+	}
+
 	builder := strings.Builder{}
 
 	builder.WriteString(fmt.Sprintf("export function New%s() : %s {\n", class.Name, class.Name))

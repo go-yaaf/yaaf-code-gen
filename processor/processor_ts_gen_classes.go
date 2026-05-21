@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
+	"github.com/go-yaaf/yaaf-common/utils/collections"
 )
 
 // region TS template Classes Processor --------------------------------------------------------------------------------
@@ -38,26 +39,46 @@ func addClassConstructor(class model.ClassInfo) string {
 
 // Add class imports based on the class dependencies
 func addClassImports(class model.ClassInfo) string {
-	output := ""
 	types := make([]string, 0)
 	for className, _ := range class.Dependencies {
 		types = append(types, className)
 	}
 	if len(types) == 0 {
-		return output
+		return ""
 	}
 
-	output = fmt.Sprintf("import { %s } from '.';\n", strings.Join(types, ", "))
+	return fmt.Sprintf("import { %s } from '.';\n", strings.Join(types, ", "))
+}
 
+// Add class factory functions imports based on the class dependencies
+func addFactoriesImports(class model.ClassInfo) string {
+	factories := make([]string, 0)
+
+	// Get all fields and filter arrays
 	p := GetTsProcessor()
-	factories := p.Model.GetFactoryMethods(types)
-	if len(factories) == 0 {
-		return output
-	} else {
-		output += fmt.Sprintf("import { %s } from '.';\n", strings.Join(factories, ", "))
-	}
+	fields := p.Model.GetAllClassFields(class.Name)
+	for _, field := range fields {
+		if field.IsArray || field.IsMap || field.IsGeneric || !field.IsComplex {
+			continue
+		}
 
-	return output
+		if collections.Include[string]([]string{"string", "number", "boolean", "any", "json", "Record<string,any>"}, field.TsType) {
+			continue
+		}
+
+		if ci := p.Model.FindClass(field.Type); ci != nil {
+			if ci.IsGeneric == false {
+				factories = append(factories, fmt.Sprintf("New%s", field.Type))
+			}
+		}
+
+	}
+	if len(factories) == 0 {
+		return ""
+	} else {
+		reduced := collections.Distinct[string](factories)
+		return fmt.Sprintf("import { %s } from '.';\n", strings.Join(reduced, ", "))
+	}
 }
 
 func genericsParam(class model.ClassInfo) string {
@@ -99,6 +120,7 @@ func (p *TsProcessor) handleTsClasses() {
 	funcMap := template.FuncMap{
 		"getTsType":      getTsType,
 		"addImports":     addClassImports,
+		"addImports2":    addFactoriesImports,
 		"addConstructor": addClassConstructor,
 		"join":           strings.Join,
 		"genericsParam":  genericsParam,
@@ -164,6 +186,7 @@ func (p *TsProcessor) handleTsClasses() {
 // {{ if .IsExtend }}{{template "getColumnDef" .}}{{end}}
 var classTsTemplate = `
 {{. | addImports}}
+{{. | addImports2}}
 
 {{range .Docs}}
 // {{.}}{{end}}

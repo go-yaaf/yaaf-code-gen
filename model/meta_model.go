@@ -142,7 +142,9 @@ func (m *MetaModel) GetFactoryMethods(list []string) []string {
 
 	for _, className := range list {
 		if ci := m.FindClass(className); ci != nil {
-			result = append(result, fmt.Sprintf("New%s", className))
+			if ci.IsGeneric == false {
+				result = append(result, fmt.Sprintf("New%s", className))
+			}
 		}
 	}
 

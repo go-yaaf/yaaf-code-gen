@@ -2,6 +2,7 @@
 // https://medium.com/@saranipeiris17/websockets-in-angular-a-comprehensive-guide-e92ca33f5d67
 // https://medium.com/@saranipeiris17/websockets-in-angular-a-comprehensive-guide-part-2-bd8021a9be09
 
+/************
 import { Injectable } from '@angular/core';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 import { Observable, timer } from 'rxjs';
@@ -52,3 +53,4 @@ export class WebSocketService {
         this.socket$.complete();
     }
 }
+ */

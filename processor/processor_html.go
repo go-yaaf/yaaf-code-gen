@@ -2,14 +2,21 @@ package processor
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"os"
 	"sort"
 	"strings"
-	"text/template"
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
 )
+
+// esc HTML-escapes a data value that is interpolated into a hand-built HTML
+// fragment. Model values (docs, names, types) originate from free-text source
+// comments and must be escaped to avoid stored XSS in the generated docs.
+func esc(s string) string {
+	return template.HTMLEscapeString(s)
+}
 
 var classes []model.ClassInfo
 var enums []model.EnumInfo
@@ -99,7 +106,7 @@ func (p *HtmlProcessor) generateClassPage(class model.ClassInfo) {
 		"getType": getType,
 	}
 	tmpl, _ := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_data_class.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/json_" + class.Name + ".html")
+	f, err := os.Create("./output/html/json_" + sanitizeName(class.Name) + ".html")
 	if err != nil {
 		fmt.Println("create file: ", err)
 		return
@@ -112,7 +119,7 @@ func (p *HtmlProcessor) generateClassPage(class model.ClassInfo) {
 // Generate enum page
 func (p *HtmlProcessor) generateEnumPage(enum model.EnumInfo) {
 	tmpl, _ := template.New("base.html").ParseFiles("templates/html/footer.html", "templates/html/json_data_enum.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/json_" + enum.Name + ".html")
+	f, err := os.Create("./output/html/json_" + sanitizeName(enum.Name) + ".html")
 	if err != nil {
 		fmt.Println("create file: ", err)
 		return
@@ -130,7 +137,7 @@ func (p *HtmlProcessor) generateServicePage(service model.ServiceInfo) {
 		"addParams":    addParams,
 	}
 	tmpl, _ := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_data_service.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/resource_" + service.Name + ".html")
+	f, err := os.Create("./output/html/resource_" + sanitizeName(service.Name) + ".html")
 	if err != nil {
 		fmt.Println("create file: ", err)
 		return
@@ -148,7 +155,7 @@ func (p *HtmlProcessor) generateWebSocketPage(socket model.WebSocketInfo) {
 		"addParams":    addParams,
 	}
 	tmpl, _ := template.New("base.html").Funcs(funcMap).ParseFiles("templates/html/footer.html", "templates/html/json_web_socket.html", "templates/html/base.html")
-	f, err := os.Create("./output/html/web_socket_" + socket.Name + ".html")
+	f, err := os.Create("./output/html/web_socket_" + sanitizeName(socket.Name) + ".html")
 	if err != nil {
 		fmt.Println("create file: ", err)
 		return
@@ -230,7 +237,7 @@ func contains(classes []model.ClassInfo, className string) bool {
 	return false
 }
 
-func addBodyParam(bodyParam *model.ParamInfo) string {
+func addBodyParam(bodyParam *model.ParamInfo) template.HTML {
 	rows := ""
 	dataTypeRef := ""
 	arrayPrefix := ""
@@ -239,9 +246,9 @@ func addBodyParam(bodyParam *model.ParamInfo) string {
 			arrayPrefix = "array of "
 		}
 		if contains(classes, bodyParam.Name) {
-			dataTypeRef = fmt.Sprintf(`%s<a href="json_%s.html">%s</a> (JSON)`, arrayPrefix, bodyParam.Name, bodyParam.Name)
+			dataTypeRef = fmt.Sprintf(`%s<a href="json_%s.html">%s</a> (JSON)`, arrayPrefix, esc(bodyParam.Name), esc(bodyParam.Name))
 		} else {
-			dataTypeRef = fmt.Sprintf(`%s<a href="json_%s.html">%s</a> (JSON)`, arrayPrefix, bodyParam.Type, bodyParam.Type)
+			dataTypeRef = fmt.Sprintf(`%s<a href="json_%s.html">%s</a> (JSON)`, arrayPrefix, esc(bodyParam.Type), esc(bodyParam.Type))
 		}
 		rows += fmt.Sprintf(
 			`
@@ -254,13 +261,22 @@ func addBodyParam(bodyParam *model.ParamInfo) string {
 			</tr>
 			 `,
 			dataTypeRef,
-			strings.Join(bodyParam.Docs, "<br>"),
+			escDocs(bodyParam.Docs),
 		)
 	}
-	return "<tr>" + rows + "</tr>"
+	return template.HTML("<tr>" + rows + "</tr>")
 }
 
-func listServiceMethods(service model.ServiceInfo) string {
+// escDocs escapes each documentation line and joins them with a literal <br>.
+func escDocs(docs []string) string {
+	escaped := make([]string, 0, len(docs))
+	for _, d := range docs {
+		escaped = append(escaped, esc(d))
+	}
+	return strings.Join(escaped, "<br>")
+}
+
+func listServiceMethods(service model.ServiceInfo) template.HTML {
 	methods := make(map[string]string)
 	output := ""
 	for _, method := range service.Methods {
@@ -274,20 +290,20 @@ func listServiceMethods(service model.ServiceInfo) string {
 			</samp>
 		</li>
 		`,
-			service.Path,
-			method,
+			esc(service.Path),
+			esc(method),
 		)
 	}
-	return output
+	return template.HTML(output)
 }
 
-func listPathMethodTypes(service model.ServiceInfo) string {
+func listPathMethodTypes(service model.ServiceInfo) template.HTML {
 	methods := make(map[string][]string)
 	output := ""
 	for _, method := range service.Methods {
 		methods[method.Path] = append(methods[method.Path],
 			fmt.Sprintf(`<span class="label label-default resource-method">%s</span>`,
-				method.Method),
+				esc(method.Method)),
 		)
 	}
 
@@ -302,10 +318,10 @@ func listPathMethodTypes(service model.ServiceInfo) string {
 			strings.Join(method, "&nbsp;"),
 		)
 	}
-	return output
+	return template.HTML(output)
 }
 
-func addParams(params []*model.ParamInfo) string {
+func addParams(params []*model.ParamInfo) template.HTML {
 
 	rows := ""
 	for _, param := range params {
@@ -316,11 +332,11 @@ func addParams(params []*model.ParamInfo) string {
 				<td>%s</td>
 				<td><span class="parameter-description">%s</span></td>
 			</tr>`,
-			param.TsName,
-			param.ParamType,
-			strings.Join(param.Docs, "<br>"))
+			esc(param.TsName),
+			esc(param.ParamType),
+			escDocs(param.Docs))
 	}
-	return rows
+	return template.HTML(rows)
 }
 
 // Generate enums table
@@ -369,7 +385,7 @@ func (p *HtmlProcessor) generateClassesTable(classes []model.ClassInfo) {
 	}
 }
 
-func getType(pType string) string {
+func getType(pType string) template.HTML {
 	types := map[string]string{
 		"double":   "number",
 		"float":    "number",
@@ -388,8 +404,8 @@ func getType(pType string) string {
 		"bytes":    "string",
 	}
 
-	if _, ok := types[pType]; ok {
-		return types[pType]
+	if v, ok := types[pType]; ok {
+		return template.HTML(esc(v))
 	}
-	return "<a href='json_" + pType + ".html'>" + pType + "</a>"
+	return template.HTML("<a href='json_" + esc(pType) + ".html'>" + esc(pType) + "</a>")
 }

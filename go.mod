@@ -1,9 +1,9 @@
 module github.com/go-yaaf/yaaf-code-gen
 
-go 1.24.0
+go 1.25.8
 
 require (
-	github.com/go-yaaf/yaaf-common v1.2.185
+	github.com/go-yaaf/yaaf-common v1.2.186
 	github.com/stretchr/testify v1.11.1
 )
 

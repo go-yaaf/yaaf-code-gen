@@ -39,8 +39,17 @@ func (p *TsProcessor) handleTsEnums() {
 	tp := GetExternalTemplate("enum", enumTsTemplate, funcMap)
 	tmpl, _ := template.New("base_enum.ts.tpl").Funcs(tp.FuncMap).Parse(tp.Template)
 	for _, enum := range enumList {
+		safeName := sanitizeName(enum.Name)
+		if safeName == "" {
+			log.Printf("skipping enum with unsafe name: %q", enum.Name)
+			continue
+		}
 		list = append(list, enum.Name)
-		fileName := path.Join(folder, fmt.Sprintf("%s.ts", enum.Name))
+		fileName, err := confinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
+		if err != nil {
+			log.Printf("skipping enum %q: %v", enum.Name, err)
+			continue
+		}
 		if f, err := os.Create(fileName); err != nil {
 			log.Fatal("Error creating file: ", fileName, err)
 		} else if er := tmpl.Execute(f, enum); er != nil {

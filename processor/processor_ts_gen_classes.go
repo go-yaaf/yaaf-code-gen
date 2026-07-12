@@ -160,7 +160,16 @@ func (p *TsProcessor) handleTsClasses() {
 			// Remove newlines
 			processedContent := p.trimNewLines(tpl.String())
 
-			fileName := path.Join(folder, fmt.Sprintf("%s.ts", class.Name))
+			safeName := sanitizeName(class.Name)
+			if safeName == "" {
+				log.Printf("skipping class with unsafe name: %q", class.Name)
+				continue
+			}
+			fileName, err := confinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
+			if err != nil {
+				log.Printf("skipping class %q: %v", class.Name, err)
+				continue
+			}
 			if f, err := os.Create(fileName); err != nil {
 				log.Fatal("Error creating file: ", fileName, err)
 			} else {

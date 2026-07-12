@@ -46,6 +46,14 @@ func (p *TsProcessor) handleTsServices() {
 			fName = service.TsName
 		}
 
+		// fName may derive from the free-text @Service annotation; confine it to
+		// a safe, in-folder file name to prevent path traversal.
+		safeName := sanitizeName(fName)
+		if safeName == "" {
+			log.Printf("skipping service with unsafe name: %q", fName)
+			continue
+		}
+
 		var tpl bytes.Buffer
 		if err := tmpl.Execute(&tpl, service); err != nil {
 			log.Fatal("Error executing template [base_service.ts.tpl]: ", err)
@@ -55,7 +63,11 @@ func (p *TsProcessor) handleTsServices() {
 
 		list = append(list, fName)
 
-		fileName := path.Join(folder, fmt.Sprintf("%s.ts", fName))
+		fileName, err := confinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
+		if err != nil {
+			log.Printf("skipping service %q: %v", fName, err)
+			continue
+		}
 		if f, err := os.Create(fileName); err != nil {
 			log.Fatal("Error creating file: ", fileName, err)
 		} else {

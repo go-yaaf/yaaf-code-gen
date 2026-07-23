@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/go-yaaf/yaaf-common/entity"
@@ -206,6 +207,111 @@ func Title(name string) string {
 	} else {
 		return ""
 	}
+}
+
+// endregion
+
+// region Internal helper functions ------------------------------------------------------------------------------------
+
+// ListServiceGroups get a sorted list of all groups of services
+func (m *MetaModel) ListServiceGroups() []*ServiceGroup {
+	services := make([]*ServiceInfo, 0)
+
+	groups := make([]*ServiceGroup, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Services {
+			services = append(services, s)
+		}
+	}
+
+	sort.Slice(services, func(i, j int) bool {
+		return services[i].Name < services[j].Name
+	})
+
+	addToGroup := func(srv *ServiceInfo) {
+		for _, grp := range groups {
+			if grp.Name == srv.Group {
+				grp.AddService(srv)
+				return
+			}
+		}
+		grp := NewServiceGroup(srv.Group, srv)
+		groups = append(groups, grp)
+	}
+
+	for _, s := range services {
+		addToGroup(s)
+	}
+
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].Name < groups[j].Name
+	})
+	return groups
+}
+
+// ListServices get a sorted list of all services
+func (m *MetaModel) ListServices() []*ServiceInfo {
+	result := make([]*ServiceInfo, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Services {
+			result = append(result, s)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
+}
+
+// ListClasses get a sorted list of all classes
+func (m *MetaModel) ListClasses() []*ClassInfo {
+	result := make([]*ClassInfo, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Classes {
+			result = append(result, s)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
+}
+
+// ListEnums get a sorted list of all enums
+func (m *MetaModel) ListEnums() []*EnumInfo {
+	result := make([]*EnumInfo, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Enums {
+			result = append(result, s)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
+}
+
+// ListWebSockets get a sorted list of all web-sockets
+func (m *MetaModel) ListWebSockets() []*WebSocketInfo {
+	result := make([]*WebSocketInfo, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Sockets {
+			result = append(result, s)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
 }
 
 // endregion

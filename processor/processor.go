@@ -2,20 +2,21 @@ package processor
 
 import (
 	"fmt"
-	"github.com/go-yaaf/yaaf-code-gen/model"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/go-yaaf/yaaf-code-gen/model"
 )
 
-// sanitizeName reduces an arbitrary (possibly annotation-derived) identifier to
+// SanitizeName reduces an arbitrary (possibly annotation-derived) identifier to
 // a single, path-safe file-name component. Model names such as service TsName,
 // @Context and @Path values originate from free-text source comments; using them
 // verbatim in an output path would allow path traversal (e.g. "../../../etc/x").
 // This keeps only the final path component and strips separators / parent refs.
-func sanitizeName(name string) string {
+func SanitizeName(name string) string {
 	// Normalize Windows-style separators so traversal is collapsed regardless of
 	// the host OS, then keep only the final path component.
 	normalized := strings.ReplaceAll(strings.TrimSpace(name), "\\", "/")
@@ -28,10 +29,10 @@ func sanitizeName(name string) string {
 	return base
 }
 
-// confinedJoin joins base with the given (already file-name-shaped) segment and
+// ConfinedJoin joins base with the given (already file-name-shaped) segment and
 // verifies the result stays within base. It is a defense-in-depth check on top
 // of sanitizeName: it returns an error if the resulting path would escape base.
-func confinedJoin(base, segment string) (string, error) {
+func ConfinedJoin(base, segment string) (string, error) {
 	joined := filepath.Join(base, segment)
 	absBase, err := filepath.Abs(base)
 	if err != nil {
@@ -55,12 +56,14 @@ type Processor interface {
 
 // BaseProcessor parses proto files and generates abstract meta Model
 type BaseProcessor struct {
-	Output string
-	Model  *model.MetaModel
+	Output     string
+	Model      *model.MetaModel
+	ApiName    string // API Documentation name
+	ApiVersion string // API version
 }
 
-// File copies a single file from src to dst
-func (p *BaseProcessor) fileCopy(src, dst string) error {
+// FileCopy copies a single file from src to dst
+func (p *BaseProcessor) FileCopy(src, dst string) error {
 	var err error
 	var srcFd *os.File
 	var dstFd *os.File
@@ -89,8 +92,8 @@ func (p *BaseProcessor) fileCopy(src, dst string) error {
 	return os.Chmod(dst, srcInfo.Mode())
 }
 
-// Dir copies a whole directory recursively
-func (p *BaseProcessor) dirCopy(src string, dst string) error {
+// DirCopy copies a whole directory recursively
+func (p *BaseProcessor) DirCopy(src string, dst string) error {
 	var err error
 	var fds []os.DirEntry
 	var fileInfo os.FileInfo
@@ -111,11 +114,11 @@ func (p *BaseProcessor) dirCopy(src string, dst string) error {
 		dstPath := path.Join(dst, fd.Name())
 
 		if fd.IsDir() {
-			if err = p.dirCopy(srcPath, dstPath); err != nil {
+			if err = p.DirCopy(srcPath, dstPath); err != nil {
 				fmt.Println(err)
 			}
 		} else {
-			if err = p.fileCopy(srcPath, dstPath); err != nil {
+			if err = p.FileCopy(srcPath, dstPath); err != nil {
 				fmt.Println(err)
 			}
 		}
@@ -123,11 +126,10 @@ func (p *BaseProcessor) dirCopy(src string, dst string) error {
 	return nil
 }
 
-// remove multiple new lines for better readability
-func (p *BaseProcessor) trimNewLines(source string) string {
+// TrimNewLines remove multiple new lines for better readability
+func (p *BaseProcessor) TrimNewLines(source string) string {
 	// Remove newlines
 	result := strings.ReplaceAll(source, "\n\n\n\n", "\n\n")
 	result = strings.ReplaceAll(result, "\n\n\n", "\n\n")
-	//result = strings.ReplaceAll(result, "\n\n", "\n")
 	return result
 }

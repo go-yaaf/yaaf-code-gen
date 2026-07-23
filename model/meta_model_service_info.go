@@ -356,3 +356,26 @@ func NewTypeNode(input string) *TypeNode {
 }
 
 // endregion
+
+// region Service Group structure --------------------------------------------------------------------------------------
+
+// ServiceGroup service information
+type ServiceGroup struct {
+	Name     string         // Name of resource group
+	Services []*ServiceInfo // List of services
+}
+
+func NewServiceGroup(name string, services ...*ServiceInfo) *ServiceGroup {
+	sg := &ServiceGroup{
+		Name:     name,
+		Services: make([]*ServiceInfo, 0),
+	}
+	sg.Services = append(sg.Services, services...)
+	return sg
+}
+
+func (sg *ServiceGroup) AddService(info *ServiceInfo) {
+	sg.Services = append(sg.Services, info)
+}
+
+// endregion

@@ -10,10 +10,10 @@ import (
 	. "github.com/go-yaaf/yaaf-code-gen"
 )
 
-func TestGooXDocumentor(t *testing.T) {
+func TestGooXApiDoc(t *testing.T) {
 	skipCI(t)
 
-	gen := NewCodeGenerator()
+	gen := NewApiGenerator()
 
 	// Get all source folders
 	gp := os.Getenv("GOPATH")
@@ -28,11 +28,13 @@ func TestGooXDocumentor(t *testing.T) {
 	gen.WithPathFilter("/github.com/mottyc/")
 
 	// Output folder
-	outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/test_out", gp)
+	outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/test_out/goox/api", gp)
 	err := os.MkdirAll(outDir, os.ModePerm)
 	require.Nil(t, err)
 
 	gen.WithTargetFolder(outDir)
+
+	gen.WithApiName("GooX API").WithApiVersion("v1.0.5")
 
 	err = gen.Process()
 	require.Nil(t, err)

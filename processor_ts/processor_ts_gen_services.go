@@ -1,4 +1,4 @@
-package processor
+package processor_ts
 
 import (
 	"bytes"
@@ -10,6 +10,8 @@ import (
 	"text/template"
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
+
+	. "github.com/go-yaaf/yaaf-code-gen/processor"
 )
 
 // region TS template Service Processor --------------------------------------------------------------------------------
@@ -48,7 +50,7 @@ func (p *TsProcessor) handleTsServices() {
 
 		// fName may derive from the free-text @Service annotation; confine it to
 		// a safe, in-folder file name to prevent path traversal.
-		safeName := sanitizeName(fName)
+		safeName := SanitizeName(fName)
 		if safeName == "" {
 			log.Printf("skipping service with unsafe name: %q", fName)
 			continue
@@ -59,11 +61,11 @@ func (p *TsProcessor) handleTsServices() {
 			log.Fatal("Error executing template [base_service.ts.tpl]: ", err)
 		}
 		// Remove newlines
-		processedContent := p.trimNewLines(tpl.String())
+		processedContent := p.TrimNewLines(tpl.String())
 
 		list = append(list, fName)
 
-		fileName, err := confinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
+		fileName, err := ConfinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
 		if err != nil {
 			log.Printf("skipping service %q: %v", fName, err)
 			continue
@@ -103,7 +105,7 @@ func (p *TsProcessor) generateServicesExports() {
 	}
 
 	// Remove newlines
-	processedContent := p.trimNewLines(tpl.String())
+	processedContent := p.TrimNewLines(tpl.String())
 
 	if f, err := os.Create(fileName); err != nil {
 		log.Fatal("Error creating file: ", fileName, err)

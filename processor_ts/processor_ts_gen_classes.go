@@ -1,4 +1,4 @@
-package processor
+package processor_ts
 
 import (
 	"bytes"
@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
 	"github.com/go-yaaf/yaaf-common/utils/collections"
+
+	. "github.com/go-yaaf/yaaf-code-gen/processor"
 )
 
 // region TS template Classes Processor --------------------------------------------------------------------------------
@@ -158,14 +160,14 @@ func (p *TsProcessor) handleTsClasses() {
 				log.Fatal("Error executing template [base_class.ts.tpl]: ", err)
 			}
 			// Remove newlines
-			processedContent := p.trimNewLines(tpl.String())
+			processedContent := p.TrimNewLines(tpl.String())
 
-			safeName := sanitizeName(class.Name)
+			safeName := SanitizeName(class.Name)
 			if safeName == "" {
 				log.Printf("skipping class with unsafe name: %q", class.Name)
 				continue
 			}
-			fileName, err := confinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
+			fileName, err := ConfinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
 			if err != nil {
 				log.Printf("skipping class %q: %v", class.Name, err)
 				continue

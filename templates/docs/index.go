@@ -1,43 +1,59 @@
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900 text-slate-100">
+package docs
+
+const HEAD_TMPL = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation</title>
-    <link href="styles.css" rel="stylesheet">
+    {{template "STYLES_TMPL"}}
 </head>
+`
+
+const HEADER_TMPL = `
+    <header class="bg-slate-950 border-b border-slate-800 p-4 flex items-center justify-between">
+        <h2 class="text-md font-bold text-white">{{.}}</h2>
+        <div class="flex" style="gap: 2rem">
+            <a href="index.html" class="text-slate-300 hover:text-white">Services</a>
+            <a href="types.html" class="text-slate-300 hover:text-white">Data Types</a>
+            <a href="enums.html" class="text-slate-300 hover:text-white">Enums</a>
+        </div>
+    </header>
+`
+
+const INDEX_TMPL = `
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+{{template "HEAD_TMPL"}}
 <body class="flex h-full overflow-hidden font-sans antialiased">
 
 <!-- 1. Sidebar Navigation -->
 <aside class="w-64 bg-slate-950 border-r border-slate-800 flex flex-col hidden md:flex">
     <div class="p-4 border-b border-slate-800">
         <h1 class="text-lg font-bold text-white tracking-wide">API Version</h1>
-        <span class="text-xs text-emerald-400 font-mono">v1.0.0</span>
+        <span class="text-xs text-emerald-400 font-mono">{{.Version}}</span>
     </div>
     <nav class="flex-1 overflow-y-auto p-4 space-y-6">
         <div>
             <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Getting Started</h3>
             <ul class="space-y-1 text-sm">
-                <li><a href="#authentication" class="block py-1 text-emerald-400 font-medium">Authentication</a></li>
-                <li><a href="#errors" class="block py-1 text-slate-400 hover:text-white">Errors</a></li>
+                <li><a href="#authentication" class="block py-1 text-emerald-300 font-medium">Authentication</a></li>
+                <li><a href="#errors" class="block py-1 text-slate-300 hover:text-white">Errors</a></li>
             </ul>
         </div>
         <div>
-            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Services Groups</h3>
-            <ul class="space-y-1 text-sm font-mono">
+			{{range .Groups}}
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-8">{{.Name}}</h3>
+			<ul class="text-sm font-mono">
+				{{range .Services}}
                 <li>
-                    <a href="#get-users" class="flex items-center space-x-2 py-1 text-slate-400 hover:text-white">
-                        <span class="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-bold">GET</span>
-                        <span>/users</span>
+                    <a href="#post-users" class="flex items-center py-1 text-slate-300 hover:text-white">
+                        <span class="px-1.5">{{.Name}}</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#post-users" class="flex items-center space-x-2 py-1 text-slate-400 hover:text-white">
-                        <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-bold">POST</span>
-                        <span>/users</span>
-                    </a>
-                </li>
-            </ul>
+				{{end}}
+			</ul>
+            <div class="tracking-wider mb-4"></div>
+			{{end}}
         </div>
     </nav>
 </aside>
@@ -45,14 +61,7 @@
 <!-- Main Content Wrapper -->
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-    <header class="bg-slate-950 border-b border-slate-800 p-4 flex items-center justify-between">
-        <h1 class="text-md font-bold text-white">{{API Docs}}</h1>
-        <div class="flex" style="gap: 2rem">
-            <a href="#services" class="text-blue-500 hover:text-white">Services</a>
-            <a href="#data-types" class="text-slate-300 hover:text-white">Data Types</a>
-            <a href="#enums" class="text-slate-300 hover:text-white">Enums</a>
-        </div>
-    </header>
+{{template "HEADER_TMPL" .Name}}
 
     <main class="flex-1 overflow-y-auto grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-slate-800">
         <div class="p-6 md:p-12 space-y-16 max-w-3xl">
@@ -63,8 +72,8 @@
                     <span>X-API-KEY: </span><span class="mx-8 text-emerald-400">YOUR_API_KEY</span>
                 </div>
                 <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-300 w-2xl">
-                    <span class="mx-4">X-ACCESS-TOKEN: </span><span class="mx-8 text-emerald-400">YOUR_ACCESS_TOKEN</span>
-                    <span class="my-4 mx-8 text-sm font-bold text-white">or</span>
+                    <span class="mx-4">X-ACCESS-TOKEN: </span><span class="mx-8 text-emerald-400">YOUR_ACCESS_TOKEN</span><br><br>
+                    <span class="my-4 mx-8 text-sm font-bold text-white">or</span><br><br>
                     <span class="mx-4">Authorization: Bearer </span><span class="mx-8 text-emerald-400">YOUR_ACCESS_TOKEN</span>
                 </div>
             </section>
@@ -90,9 +99,12 @@
   "error": "detailed error description"
 }</pre>
             </section>
+
         </div>
     </main>
 </div>
 
+
 </body>
 </html>
+`

@@ -1,4 +1,4 @@
-package processor
+package processor_ts
 
 import (
 	"fmt"
@@ -8,6 +8,8 @@ import (
 	"text/template"
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
+
+	. "github.com/go-yaaf/yaaf-code-gen/processor"
 )
 
 // region TS template Enums Processor ----------------------------------------------------------------------------------
@@ -39,13 +41,13 @@ func (p *TsProcessor) handleTsEnums() {
 	tp := GetExternalTemplate("enum", enumTsTemplate, funcMap)
 	tmpl, _ := template.New("base_enum.ts.tpl").Funcs(tp.FuncMap).Parse(tp.Template)
 	for _, enum := range enumList {
-		safeName := sanitizeName(enum.Name)
+		safeName := SanitizeName(enum.Name)
 		if safeName == "" {
 			log.Printf("skipping enum with unsafe name: %q", enum.Name)
 			continue
 		}
 		list = append(list, enum.Name)
-		fileName, err := confinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
+		fileName, err := ConfinedJoin(folder, fmt.Sprintf("%s.ts", safeName))
 		if err != nil {
 			log.Printf("skipping enum %q: %v", enum.Name, err)
 			continue
@@ -62,38 +64,6 @@ func (p *TsProcessor) handleTsEnums() {
 	// Create the enums index file
 	//p.generateIndexTs(list, folder)
 }
-
-// Generate enums mapping
-/*
-func (p *TsProcessor) handleTsEnumsMapping() {
-
-	funcMap := template.FuncMap{
-		"toDisplayName": toDisplayName,
-	}
-
-	var enumList []model.EnumInfo
-	for _, v := range p.Model.Packages {
-		for _, enum := range v.Enums {
-			enumList = append(enumList, *enum)
-
-			// If this is a flag enum, put the native value in the class field
-			if enum.IsFlags {
-				tsTypes[enum.Name] = "number"
-			}
-		}
-	}
-	tmpl, _ := template.New("enum_map.ts.tpl").Funcs(funcMap).Parse(enumMapTsTemplate)
-	fileName := path.Join(p.Output, "model", "enums.ts")
-
-	if f, err := os.Create(fileName); err != nil {
-		log.Fatal("Error creating file: ", fileName, err)
-	} else if er := tmpl.Execute(f, enumList); er != nil {
-		log.Fatal("Error executing template [enum_map.ts.tpl]: ", er)
-	} else {
-		_ = f.Close()
-	}
-}
-*/
 
 // endregion
 

@@ -1,4 +1,4 @@
-package processor
+package processor_ts
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/go-yaaf/yaaf-code-gen/model"
+	. "github.com/go-yaaf/yaaf-code-gen/processor"
 )
 
 var tsTypes = map[string]string{
@@ -104,25 +105,6 @@ func toDisplayName(s string) string {
 }
 
 // Generate indexes
-/*
-func (p *TsProcessor) generateIndexes() {
-	var content []string
-
-	for _, pkg := range p.Model.Packages {
-		for en := range pkg.Enums {
-			content = append(content, fmt.Sprintf("%s", en))
-		}
-		for cn := range pkg.Classes {
-			content = append(content, fmt.Sprintf("%s", cn))
-		}
-		for sn := range pkg.Services {
-			content = append(content, fmt.Sprintf("%s", sn))
-		}
-	}
-
-	p.generateIndexTs(content)
-}
-*/
 
 // getTsType - convert variables types to known TypeScript types
 func getTsType(pType string) string {
@@ -214,20 +196,3 @@ func (p *TsProcessor) generateIndexTs(data []string, folder string) {
 		_ = f.Close()
 	}
 }
-
-//func convertToTypeScript(name string) string {
-//	tokens := strings.Split(name, "<")
-//	types := make([]string, 0)
-//	for _, token := range tokens {
-//		types = append(types, strings.ReplaceAll(token, ">", ""))
-//	}
-//
-//	for _, t := range types {
-//		tsType := getTsType(t)
-//		if tsType != t {
-//			name = strings.ReplaceAll(name, t, tsType)
-//		}
-//	}
-//
-//	return name
-//}

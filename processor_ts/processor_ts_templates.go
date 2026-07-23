@@ -1,4 +1,4 @@
-package processor
+package processor_ts
 
 // region TypeScript index file template -------------------------------------------------------------------------------
 

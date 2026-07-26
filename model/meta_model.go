@@ -211,44 +211,7 @@ func Title(name string) string {
 
 // endregion
 
-// region Internal helper functions ------------------------------------------------------------------------------------
-
-// ListServiceGroups get a sorted list of all groups of services
-func (m *MetaModel) ListServiceGroups() []*ServiceGroup {
-	services := make([]*ServiceInfo, 0)
-
-	groups := make([]*ServiceGroup, 0)
-
-	for _, pkg := range m.Packages {
-		for _, s := range pkg.Services {
-			services = append(services, s)
-		}
-	}
-
-	sort.Slice(services, func(i, j int) bool {
-		return services[i].Name < services[j].Name
-	})
-
-	addToGroup := func(srv *ServiceInfo) {
-		for _, grp := range groups {
-			if grp.Name == srv.Group {
-				grp.AddService(srv)
-				return
-			}
-		}
-		grp := NewServiceGroup(srv.Group, srv)
-		groups = append(groups, grp)
-	}
-
-	for _, s := range services {
-		addToGroup(s)
-	}
-
-	sort.Slice(groups, func(i, j int) bool {
-		return groups[i].Name < groups[j].Name
-	})
-	return groups
-}
+// region Element lists helper functions -------------------------------------------------------------------------------
 
 // ListServices get a sorted list of all services
 func (m *MetaModel) ListServices() []*ServiceInfo {
@@ -312,6 +275,119 @@ func (m *MetaModel) ListWebSockets() []*WebSocketInfo {
 		return result[i].Name < result[j].Name
 	})
 	return result
+}
+
+// endregion
+
+// region Element Groups helper functions ------------------------------------------------------------------------------
+
+// ListServiceGroups get a sorted list of all groups of services
+func (m *MetaModel) ListServiceGroups() []*ServiceGroup {
+	services := make([]*ServiceInfo, 0)
+
+	groups := make([]*ServiceGroup, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Services {
+			services = append(services, s)
+		}
+	}
+
+	sort.Slice(services, func(i, j int) bool {
+		return services[i].Name < services[j].Name
+	})
+
+	addToGroup := func(srv *ServiceInfo) {
+		for _, grp := range groups {
+			if grp.Name == srv.Group {
+				grp.AddService(srv)
+				return
+			}
+		}
+		grp := NewServiceGroup(srv.Group, srv)
+		groups = append(groups, grp)
+	}
+
+	for _, s := range services {
+		addToGroup(s)
+	}
+
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].Name < groups[j].Name
+	})
+	return groups
+}
+
+// ListClassGroups get a sorted list of all groups of classes
+func (m *MetaModel) ListClassGroups() []*ClassGroup {
+	classes := make([]*ClassInfo, 0)
+	groups := make([]*ClassGroup, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Classes {
+			classes = append(classes, s)
+		}
+	}
+
+	sort.Slice(classes, func(i, j int) bool {
+		return classes[i].Name < classes[j].Name
+	})
+
+	addToGroup := func(cl *ClassInfo) {
+		for _, grp := range groups {
+			if grp.Name == cl.Group {
+				grp.AddClass(cl)
+				return
+			}
+		}
+		grp := NewClassGroup(cl.Group, cl)
+		groups = append(groups, grp)
+	}
+
+	for _, s := range classes {
+		addToGroup(s)
+	}
+
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].Name < groups[j].Name
+	})
+	return groups
+}
+
+// ListEnumGroups get a sorted list of all groups of enums
+func (m *MetaModel) ListEnumGroups() []*EnumGroup {
+	enums := make([]*EnumInfo, 0)
+	groups := make([]*EnumGroup, 0)
+
+	for _, pkg := range m.Packages {
+		for _, s := range pkg.Enums {
+			enums = append(enums, s)
+		}
+	}
+
+	sort.Slice(enums, func(i, j int) bool {
+		return enums[i].Name < enums[j].Name
+	})
+
+	addToGroup := func(en *EnumInfo) {
+		for _, grp := range groups {
+			if grp.Name == en.Group {
+				grp.AddEnum(en)
+				return
+			}
+		}
+		grp := NewEnumsGroup(en.Group, en)
+		groups = append(groups, grp)
+	}
+
+	for _, s := range enums {
+		addToGroup(s)
+	}
+
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].Name < groups[j].Name
+	})
+	return groups
 }
 
 // endregion

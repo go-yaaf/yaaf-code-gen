@@ -30,6 +30,10 @@ func (p *FileParser) processEntityType(ti *model.TypeInfo, decl *ast.GenDecl) er
 	ci.Docs = ti.Docs
 	ci.TableName = ti.TableName
 
+	if len(ci.Group) == 0 {
+		ci.Group = "Entities"
+	}
+
 	spec, _ := decl.Specs[0].(*ast.TypeSpec)
 	if spec.TypeParams != nil {
 		p.processClassGenericsParams(ci, spec.TypeParams)
@@ -74,6 +78,10 @@ func (p *FileParser) processDataType(ti *model.TypeInfo, decl *ast.GenDecl) erro
 	ci.Docs = ti.Docs
 	ci.TableName = ti.TableName
 
+	if len(ci.Group) == 0 {
+		ci.Group = "Data Types"
+	}
+
 	spec, _ := decl.Specs[0].(*ast.TypeSpec)
 	if spec.TypeParams != nil {
 		p.processClassGenericsParams(ci, spec.TypeParams)
@@ -108,6 +116,7 @@ func (p *FileParser) processClassGenericsParams(ci *model.ClassInfo, params *ast
 
 			if val, ok := field.Type.(*ast.Ident); ok {
 				ci.GenericTypes = append(ci.GenericTypes, model.StringKeyValue{Key: key, Value: val.Name})
+				//ci.Group = "Generics"
 			} else {
 				//fmt.Println("processClassGenericsParams: field type is not of type *ast.Ident")
 			}

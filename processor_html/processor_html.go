@@ -103,17 +103,8 @@ func (p *HtmlProcessor) generateIndexHtml(root *template.Template) {
 
 	fileName := path.Join(p.Output, "index.html")
 
-	groups := p.Model.ListServiceGroups()
-
-	data := struct {
-		Name    string
-		Version string
-		Groups  []*ServiceGroup
-	}{
-		Name:    p.ApiName,
-		Version: p.ApiVersion,
-		Groups:  groups,
-	}
+	data := NewTemplateData(p.ApiName, p.ApiVersion)
+	data.ServiceGroups = p.Model.ListServiceGroups()
 
 	if f, err := os.Create(fileName); err != nil {
 		log.Fatal("Error creating file: ", fileName, err)

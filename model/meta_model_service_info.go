@@ -361,21 +361,67 @@ func NewTypeNode(input string) *TypeNode {
 
 // ServiceGroup service information
 type ServiceGroup struct {
-	Name     string         // Name of resource group
-	Services []*ServiceInfo // List of services
+	Name string         // Name of resource group
+	List []*ServiceInfo // List of services
 }
 
 func NewServiceGroup(name string, services ...*ServiceInfo) *ServiceGroup {
 	sg := &ServiceGroup{
-		Name:     name,
-		Services: make([]*ServiceInfo, 0),
+		Name: name,
+		List: make([]*ServiceInfo, 0),
 	}
-	sg.Services = append(sg.Services, services...)
+	sg.List = append(sg.List, services...)
 	return sg
 }
 
 func (sg *ServiceGroup) AddService(info *ServiceInfo) {
-	sg.Services = append(sg.Services, info)
+	sg.List = append(sg.List, info)
+}
+
+// endregion
+
+// region Type Group structure -----------------------------------------------------------------------------------------
+
+// ClassGroup service information
+type ClassGroup struct {
+	Name string       // Name of resource group
+	List []*ClassInfo // List of types
+}
+
+func NewClassGroup(name string, types ...*ClassInfo) *ClassGroup {
+	sg := &ClassGroup{
+		Name: name,
+		List: make([]*ClassInfo, 0),
+	}
+	sg.List = append(sg.List, types...)
+	return sg
+}
+
+func (sg *ClassGroup) AddClass(info *ClassInfo) {
+	sg.List = append(sg.List, info)
+}
+
+// endregion
+
+// region Enum Group structure -----------------------------------------------------------------------------------------
+
+// EnumGroup groups of related enums
+type EnumGroup struct {
+	Name string      // Name of resource group
+	List []*EnumInfo // List of types
+}
+
+func NewEnumsGroup(name string, enums ...*EnumInfo) *EnumGroup {
+	sg := &EnumGroup{
+		Name: name,
+		List: make([]*EnumInfo, 0),
+	}
+	sg.List = append(sg.List, enums...)
+	return sg
+}
+
+func (sg *EnumGroup) AddEnum(info *EnumInfo) {
+	sg.List = append(sg.List, info)
 }
 
 // endregion

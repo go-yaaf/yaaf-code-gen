@@ -14,16 +14,9 @@ func (p *HtmlProcessor) generateTypesHtml(root *template.Template) {
 
 	fileName := path.Join(p.Output, "types.html")
 
-	list := p.Model.ListClasses()
-	data := struct {
-		Name    string
-		Version string
-		Types   []*ClassInfo
-	}{
-		Name:    p.ApiName,
-		Version: p.ApiVersion,
-		Types:   list,
-	}
+	data := NewTemplateData(p.ApiName, p.ApiVersion)
+	data.ClassGroups = p.Model.ListClassGroups()
+
 	if f, err := os.Create(fileName); err != nil {
 		log.Fatal("Error creating file: ", fileName, err)
 	} else if err = root.ExecuteTemplate(f, "TYPES_TMPL", data); err != nil {

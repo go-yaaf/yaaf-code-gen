@@ -77,6 +77,7 @@ func (p *FileParser) ParseFile(path string) error {
 		imPath := p.getAbsolutePath(imp.Path.Value)
 		p.ParseFolder(imPath)
 	}
+
 	for _, dcl := range result.Decls {
 		switch spec := dcl.(type) {
 		case *ast.GenDecl:

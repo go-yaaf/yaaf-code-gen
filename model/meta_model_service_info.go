@@ -104,6 +104,21 @@ func (s *ServiceInfo) replaceAliases(pi *PackageInfo) {
 	}
 }
 
+// Clone create deep clone of this object
+func (s *ServiceInfo) Clone() *ServiceInfo {
+	if s == nil {
+		return nil
+	}
+
+	// 1. Shallow copy all scalar fields at once
+	cloned := *s
+
+	for _, mi := range s.Methods {
+		cloned.Methods = append(cloned.Methods, mi.Clone())
+	}
+	return &cloned
+}
+
 // replaceClassNode will replace all aliases in a generic class string like EntityResponse<StringIntValue<int>>
 func replaceClassNode(class string, pi *PackageInfo) string {
 	// Split the generic class string into parts
@@ -295,6 +310,28 @@ func (m *MethodInfo) GetTsReturnType() string {
 	return buildTsType(m.ReturnType)
 }
 
+// Clone creates deep cloned object
+func (m *MethodInfo) Clone() *MethodInfo {
+	if m == nil {
+		return nil
+	}
+
+	// 1. Shallow copy all scalar fields at once
+	cloned := *m
+
+	for _, pi := range m.PathParams {
+		cloned.PathParams = append(cloned.PathParams, pi.Clone())
+	}
+	for _, pi := range m.QueryParams {
+		cloned.QueryParams = append(cloned.QueryParams, pi.Clone())
+	}
+	cloned.BodyParam = m.BodyParam.Clone()
+	cloned.FileParam = m.FileParam.Clone()
+	cloned.Return = m.Return.Clone()
+	cloned.ReturnType = m.ReturnType.Clone()
+	return &cloned
+}
+
 func buildTsType(node *TypeNode) string {
 	if node == nil {
 		return ""
@@ -340,6 +377,17 @@ func NewParamInfo(name string) *ParamInfo {
 	}
 }
 
+// Clone creates deep cloned object
+func (p *ParamInfo) Clone() *ParamInfo {
+	if p == nil {
+		return nil
+	}
+
+	// Shallow copy all scalar fields at once
+	cloned := *p
+	return &cloned
+}
+
 type TypeNode struct {
 	Name    string      `json:"name"`
 	IsArray bool        `json:"isArray,omitempty"`
@@ -353,6 +401,21 @@ func NewTypeNode(input string) *TypeNode {
 	} else {
 		return node
 	}
+}
+
+// Clone creates deep cloned object
+func (t *TypeNode) Clone() *TypeNode {
+	if t == nil {
+		return nil
+	}
+
+	// Shallow copy all scalar fields at once
+	cloned := *t
+
+	for _, arg := range t.Args {
+		cloned.Args = append(cloned.Args, arg.Clone())
+	}
+	return &cloned
 }
 
 // endregion

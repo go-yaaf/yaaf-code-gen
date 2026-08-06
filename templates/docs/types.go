@@ -5,22 +5,32 @@ const TYPES_TMPL = `
 <html lang="en" class="h-full bg-slate-900 text-slate-100">
 {{template "HEAD_TMPL"}}
 <style>
-  /* --- Pure-CSS radio switching (no JavaScript) ------------------------ */
-  /* Hidden radios live inside <main>, so they precede #type_list and      */
-  /* #type_fields and can drive them via the ~ sibling combinator.         */
+  /* --- Pure-CSS radio switching + scroll-to (no JavaScript) ------------ */
   .type-panel { display: none; }
   .type-item  { border-left: 2px solid transparent; }
 
+  /* Each radio lives INSIDE its list <label>. Clicking any label (sidebar  */
+  /* or list) focuses the radio, and the browser scrolls the focused        */
+  /* control into view — this is what scrolls the list, with no JS.         */
+  /* Must NOT use display:none / visibility:hidden (both kill focus);       */
+  /* appearance:none + height:0 drops it from layout, opacity:0 hides it.   */
+  .type-radio {
+      appearance: none; -webkit-appearance: none;
+      display: block; width: 0; height: 0;
+      margin: 0; padding: 0; border: 0;
+      opacity: 0; outline: none;
+      scroll-margin-top: 4rem;   /* land below the sticky header on scroll */
+  }
+
   {{range .ClassGroups}}
   {{range .List}}
-  /* {{.Name}}: show its value panel and highlight its list item */
-  #r-{{.TsName}}:checked ~ #type_fields #v-{{.TsName}} { display: block; }
-  #r-{{.TsName}}:checked ~ #type_list  label[for=r-{{.TsName}}] {
+  /* {{.Name}}: show value panel + highlight list row. Radios are no longer */
+  /* preceding siblings, so :has() replaces the ~ sibling combinator.       */
+  main:has(#r-{{.TsName}}:checked) #v-{{.TsName}} { display: block; }
+  .type-item:has(#r-{{.TsName}}:checked) {
       background-color: rgba(16, 185, 129, 0.10);
       border-left-color: #10b981;
   }
-  /* Sidebar highlight: the radios live in <main>, which the sidebar        */
-  /* precedes, so ~ can't reach it — hop from <body> with :has() instead.   */
   body:has(#r-{{.TsName}}:checked) aside label[for=r-{{.TsName}}] {
       color: #ffffff;
       background-color: rgba(16, 185, 129, 0.10);
@@ -39,12 +49,11 @@ const TYPES_TMPL = `
     <nav class="flex-1 overflow-y-auto p-4 space-y-6">
         <div>
 			{{range .ClassGroups}}
-            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{{.Name}}</h3>
+			<br>
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider my-4">{{.Name}}</h3>
             <ul class="space-y-1 text-sm">
 				{{range .List}}
-                    <label for="r-{{.TsName}}" class="flex items-center py-1 px-1.5 rounded text-slate-300 hover:text-white cursor-pointer transition-colors">
-                        {{.Name}}
-                    </label>
+                    <a href="type_{{.Name}}.html" class="block py-1 px-1.5 rounded text-gray-300 font-medium hover:text-white">{{.Name}}</a>
 				{{end}}
             </ul>
 			{{end}}
@@ -55,23 +64,18 @@ const TYPES_TMPL = `
 <!-- Main Content Wrapper -->
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 {{template "HEADER_TMPL" .ApiName}}
-    <main class="flex-1 overflow-y-auto grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-slate-800">
+    <main class="flex-1 overflow-y-auto scroll-smooth grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-slate-800">
 
-		<!-- Hidden radio group: one per type, first is the default selection -->
-		{{range .ClassGroups}}
-		{{range $i, $e := .List}}
-        <input type="radio" name="type" id="r-{{$e.TsName}}" class="hidden" {{if eq $i 0}}checked{{end}}>
-		{{end}}
-		{{end}}
-
-		<!-- Left Column: Types List (labels drive the radios) -->
+		<!-- Left Column: Types List. Each label wraps its own radio, which is  -->
+		<!-- both the selection state and the scroll anchor (see .type-radio).  -->
         <div id="type_list" class="p-6 md:p-12 space-y-4 max-w-3xl">
 			{{range .ClassGroups}}
-			{{range .List}}
-            <label for="r-{{.TsName}}" id="{{.TsName}}"
+			{{range $i, $e := .List}}
+            <label for="r-{{$e.TsName}}" id="{{$e.TsName}}"
                    class="type-item block cursor-pointer scroll-mt-16 rounded-lg p-4 -mx-2 hover:bg-slate-800/60 transition-colors">
-                <h2 class="text-xl font-bold text-white mb-2">{{.Name}}</h2>
-				{{range .Docs}}<p class="text-slate-300 leading-relaxed mb-1">{{.}}</p>{{end}}
+                <input type="radio" name="type" id="r-{{$e.TsName}}" class="type-radio" tabindex="-1" {{if eq $i 0}}checked{{end}}>
+                <h2 class="text-xl font-bold text-white mb-2">{{$e.Name}}</h2>
+				{{range $e.Docs}}<p class="text-slate-300 leading-relaxed mb-1">{{.}}</p>{{end}}
             </label>
 			{{end}}
 			{{end}}
@@ -89,7 +93,10 @@ const TYPES_TMPL = `
                         <!-- Field name and type on one line -->
                         <div class="flex gap-x-2 w-full">
                             <span class="w-1/2 font-mono font-semibold text-emerald-400">{{.Name}}</span>
-                            <span class="w-1/2 font-mono text-slate-200">{{.Type}}</span>
+                            <!-- <span class="w-1/2 font-mono text-slate-200">{{.Type}}</span> -->
+							<span class="w-1/2 font-mono text-slate-200" style="cursor:pointer" onclick="window.open('', '_blank', 'width=400,height=300').document.write('<h1>Hello World</h1>')">
+							{{.Type}}
+							</span>
                         </div>
                         <!-- Description lines below -->
 						{{range .Docs}}

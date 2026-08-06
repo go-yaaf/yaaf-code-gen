@@ -34,4 +34,13 @@ func (t *TypeInfo) AddHeader(header string) {
 	}
 }
 
+// GetAliasOrName return alias if exists otherwise get name
+func (t *TypeInfo) GetAliasOrName() string {
+	if len(t.Alias) > 0 {
+		return t.Alias
+	} else {
+		return t.TsName
+	}
+}
+
 // endregion

@@ -26,6 +26,20 @@ func (e *EnumInfo) AddValue(val *EnumValueInfo) {
 	e.Values = append(e.Values, val)
 }
 
+// Clone creates deep cloned object
+func (e *EnumInfo) Clone() *EnumInfo {
+	if e == nil {
+		return nil
+	}
+
+	// 1. Shallow copy all scalar fields at once
+	cloned := *e
+	for _, val := range e.Values {
+		cloned.Values = append(cloned.Values, val.Clone())
+	}
+	return &cloned
+}
+
 // EnumValueInfo enum value information
 type EnumValueInfo struct {
 	Name  string   // Name of value
@@ -40,6 +54,17 @@ func NewEnumValueInfo(name string, doc ...string) *EnumValueInfo {
 	}
 	evi.Docs = append(evi.Docs, doc...)
 	return evi
+}
+
+// Clone creates deep cloned object
+func (ev *EnumValueInfo) Clone() *EnumValueInfo {
+	if ev == nil {
+		return nil
+	}
+
+	// 1. Shallow copy all scalar fields at once
+	cloned := *ev
+	return &cloned
 }
 
 // endregion

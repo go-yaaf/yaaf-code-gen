@@ -30,8 +30,10 @@ func (p *FileParser) processEntityType(ti *model.TypeInfo, decl *ast.GenDecl) er
 	ci.Docs = ti.Docs
 	ci.TableName = ti.TableName
 
-	if len(ci.Group) == 0 {
+	if len(ti.Group) == 0 {
 		ci.Group = "Entities"
+	} else {
+		ci.Group = ti.Group
 	}
 
 	spec, _ := decl.Specs[0].(*ast.TypeSpec)
@@ -78,8 +80,10 @@ func (p *FileParser) processDataType(ti *model.TypeInfo, decl *ast.GenDecl) erro
 	ci.Docs = ti.Docs
 	ci.TableName = ti.TableName
 
-	if len(ci.Group) == 0 {
+	if len(ti.Group) == 0 {
 		ci.Group = "Data Types"
+	} else {
+		ci.Group = ti.Group
 	}
 
 	spec, _ := decl.Specs[0].(*ast.TypeSpec)

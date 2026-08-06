@@ -282,14 +282,18 @@ func (m *MetaModel) ListWebSockets() []*WebSocketInfo {
 // region Element Groups helper functions ------------------------------------------------------------------------------
 
 // ListServiceGroups get a sorted list of all groups of services
-func (m *MetaModel) ListServiceGroups() []*ServiceGroup {
+func (m *MetaModel) ListServiceGroups(selected string) []*ServiceGroup {
 	services := make([]*ServiceInfo, 0)
 
 	groups := make([]*ServiceGroup, 0)
 
 	for _, pkg := range m.Packages {
 		for _, s := range pkg.Services {
-			services = append(services, s)
+			s2 := s.Clone()
+			if s2.Name == selected {
+				s2.Type = "selected"
+			}
+			services = append(services, s2)
 		}
 	}
 
@@ -324,8 +328,9 @@ func (m *MetaModel) ListClassGroups() []*ClassGroup {
 	groups := make([]*ClassGroup, 0)
 
 	for _, pkg := range m.Packages {
-		for _, s := range pkg.Classes {
-			classes = append(classes, s)
+		for _, c := range pkg.Classes {
+			c2 := c.Clone()
+			classes = append(classes, c2)
 		}
 	}
 
@@ -360,8 +365,8 @@ func (m *MetaModel) ListEnumGroups() []*EnumGroup {
 	groups := make([]*EnumGroup, 0)
 
 	for _, pkg := range m.Packages {
-		for _, s := range pkg.Enums {
-			enums = append(enums, s)
+		for _, e := range pkg.Enums {
+			enums = append(enums, e.Clone())
 		}
 	}
 

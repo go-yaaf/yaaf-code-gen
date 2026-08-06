@@ -119,4 +119,24 @@ func (ci *ClassInfo) isGenericFieldType(fieldType string) bool {
 	return strings.Contains(fieldType, "[") && strings.Contains(fieldType, "]")
 }
 
+// Clone creates deep cloned object
+func (ci *ClassInfo) Clone() *ClassInfo {
+	if ci == nil {
+		return nil
+	}
+
+	// 1. Shallow copy all scalar fields at once
+	cloned := *ci
+
+	for _, fi := range ci.Fields {
+		cloned.Fields = append(cloned.Fields, fi.Clone())
+	}
+
+	for _, svk := range ci.GenericTypes {
+		cloned.GenericTypes = append(cloned.GenericTypes, StringKeyValue{Key: svk.Key, Value: svk.Value})
+	}
+
+	return &cloned
+}
+
 // endregion

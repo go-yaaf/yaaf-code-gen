@@ -44,6 +44,9 @@ func (p *HtmlProcessor) Start() error {
 
 	root := p.getRootTemplate()
 
+	// Generate styles
+	p.generateStylesheet(root)
+
 	// Generate root Index
 	p.generateIndexHtml(root)
 
@@ -54,13 +57,8 @@ func (p *HtmlProcessor) Start() error {
 	p.generateTypesHtml(root)
 
 	// Generate all services
-	//p.handleTsServices()
+	p.generateServicesHtml(root)
 
-	// Generate service exports
-	//p.generateServicesExports()
-
-	// Generate all index.ts files (barrels)
-	//p.generateIndexes()
 	return nil
 }
 
@@ -78,12 +76,22 @@ func (p *HtmlProcessor) getRootTemplate() *template.Template {
 
 	// 2. Define a map of template names to their string content
 	templatesToParse := map[string]string{
-		"INDEX_TMPL":  INDEX_TMPL,
-		"STYLES_TMPL": STYLES_TMPL,
-		"HEAD_TMPL":   HEAD_TMPL,
-		"HEADER_TMPL": HEADER_TMPL,
-		"ENUMS_TMPL":  ENUMS_TMPL,
-		"TYPES_TMPL":  TYPES_TMPL,
+		"INDEX_TMPL":        INDEX_TMPL,
+		"STYLES_TMPL":       STYLES_TMPL,
+		"STYLES_FULL_TMPL":  STYLES_FULL_TMPL,
+		"HEAD_TMPL":         HEAD_TMPL,
+		"HEADER_TMPL":       HEADER_TMPL,
+		"ENUMS_TMPL":        ENUMS_TMPL,
+		"TYPES_TMPL":        TYPES_TMPL,
+		"TYPE_TMPL":         TYPE_TMPL,
+		"FIELDS_TMPL":       FIELDS_TMPL,
+		"TYPE_FIELDS_TMPL":  TYPE_FIELDS_TMPL,
+		"TYPE_EXAMPLE_TMPL": TYPE_EXAMPLE_TMPL,
+		"SERVICE_TMPL":      SERVICE_TMPL,
+		"METHOD_TMPL":       METHOD_TMPL,
+		"EXAMPLE_TMPL":      EXAMPLE_TMPL,
+		"PARAM_TMPL":        PARAM_TMPL,
+		"PARAMS_TMPL":       PARAMS_TMPL,
 	}
 
 	// 3. Loop through and parse each variable into the template tree
@@ -104,11 +112,26 @@ func (p *HtmlProcessor) generateIndexHtml(root *template.Template) {
 	fileName := path.Join(p.Output, "index.html")
 
 	data := NewTemplateData(p.ApiName, p.ApiVersion)
-	data.ServiceGroups = p.Model.ListServiceGroups()
+	data.ServiceGroups = p.Model.ListServiceGroups("")
 
 	if f, err := os.Create(fileName); err != nil {
 		log.Fatal("Error creating file: ", fileName, err)
 	} else if err = root.ExecuteTemplate(f, "INDEX_TMPL", data); err != nil {
+		panic(err)
+	} else {
+		_ = f.Close()
+	}
+}
+
+// Generate main stylesheet file
+func (p *HtmlProcessor) generateStylesheet(root *template.Template) {
+
+	fileName := path.Join(p.Output, "styles.css")
+	data := NewTemplateData(p.ApiName, p.ApiVersion)
+
+	if f, err := os.Create(fileName); err != nil {
+		log.Fatal("Error creating file: ", fileName, err)
+	} else if err = root.ExecuteTemplate(f, "STYLES_FULL_TMPL", data); err != nil {
 		panic(err)
 	} else {
 		_ = f.Close()

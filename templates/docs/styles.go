@@ -1,7 +1,6 @@
 package docs
 
 const STYLES_TMPL = `
-<style>
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -752,5 +751,4 @@ const STYLES_TMPL = `
         }
     }
 }
-</style>
 `

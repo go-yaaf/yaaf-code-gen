@@ -49,4 +49,19 @@ func (f *FieldInfo) GetGenericsIndicesList() string {
 	return strings.Join(list, ",")
 }
 
+// Clone creates deep cloned object
+func (f *FieldInfo) Clone() *FieldInfo {
+	if f == nil {
+		return nil
+	}
+
+	// 1. Shallow copy all scalar fields at once
+	cloned := *f
+
+	for _, svk := range f.GenericTypes {
+		cloned.GenericTypes = append(cloned.GenericTypes, StringKeyValue{Key: svk.Key, Value: svk.Value})
+	}
+	return &cloned
+}
+
 // endregion

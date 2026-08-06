@@ -16,6 +16,7 @@ func (p *HtmlProcessor) generateEnumsHtml(root *template.Template) {
 
 	data := NewTemplateData(p.ApiName, p.ApiVersion)
 	data.EnumGroups = p.Model.ListEnumGroups()
+	data.EnumList = p.Model.ListEnums()
 
 	if f, err := os.Create(fileName); err != nil {
 		log.Fatal("Error creating file: ", fileName, err)

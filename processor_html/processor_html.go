@@ -81,17 +81,22 @@ func (p *HtmlProcessor) getRootTemplate() *template.Template {
 		"STYLES_FULL_TMPL":  STYLES_FULL_TMPL,
 		"HEAD_TMPL":         HEAD_TMPL,
 		"HEADER_TMPL":       HEADER_TMPL,
-		"ENUMS_TMPL":        ENUMS_TMPL,
 		"TYPES_TMPL":        TYPES_TMPL,
 		"TYPE_TMPL":         TYPE_TMPL,
 		"FIELDS_TMPL":       FIELDS_TMPL,
 		"TYPE_FIELDS_TMPL":  TYPE_FIELDS_TMPL,
 		"TYPE_EXAMPLE_TMPL": TYPE_EXAMPLE_TMPL,
+		"TYPE_NAME_TMPL":    TYPE_NAME_TMPL,
 		"SERVICE_TMPL":      SERVICE_TMPL,
 		"METHOD_TMPL":       METHOD_TMPL,
 		"EXAMPLE_TMPL":      EXAMPLE_TMPL,
 		"PARAM_TMPL":        PARAM_TMPL,
 		"PARAMS_TMPL":       PARAMS_TMPL,
+		"ENUMS_TMPL":        ENUMS_TMPL,
+		"ENUM_TMPL":         ENUM_TMPL,
+		"ENUM_HEADER_TMPL":  ENUM_HEADER_TMPL,
+		"ENUM_VALUES_TMPL":  ENUM_VALUES_TMPL,
+		"GENERIC_VAR_TMPL":  GENERIC_VAR_TMPL,
 	}
 
 	// 3. Loop through and parse each variable into the template tree

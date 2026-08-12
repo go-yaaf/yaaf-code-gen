@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+	"path"
 	"strings"
 )
 
@@ -104,6 +106,18 @@ func (s *ServiceInfo) replaceAliases(pi *PackageInfo) {
 	}
 }
 
+func (s *ServiceInfo) NewMethodInfo(name string) *MethodInfo {
+	return &MethodInfo{
+		Name:        name,
+		TsName:      SmallCaps(name),
+		Docs:        make([]string, 0),
+		Headers:     make([]string, 0),
+		PathParams:  make([]*ParamInfo, 0),
+		QueryParams: make([]*ParamInfo, 0),
+		ServicePath: s.Path,
+	}
+}
+
 // Clone create deep clone of this object
 func (s *ServiceInfo) Clone() *ServiceInfo {
 	if s == nil {
@@ -161,6 +175,7 @@ type MethodInfo struct {
 	TsName            string       // Type Script method name (small caps)
 	Method            string       // HTTP method: GET | POST | PUT | DELETE | PATCH
 	Path              string       // Method URI path
+	ServicePath       string       // Parent service path
 	Docs              []string     // Documentation
 	Headers           []string     // List of Http headers for this method
 	PathParams        []*ParamInfo // List of service path parameters
@@ -177,14 +192,21 @@ type MethodInfo struct {
 	SocketMessageType string       // Is method is socket message of type Request | Response
 }
 
-func NewMethodInfo(name string) *MethodInfo {
-	return &MethodInfo{
-		Name:        name,
-		TsName:      SmallCaps(name),
-		Docs:        make([]string, 0),
-		Headers:     make([]string, 0),
-		PathParams:  make([]*ParamInfo, 0),
-		QueryParams: make([]*ParamInfo, 0),
+// FullPath returns the path of the method combined with the service path
+func (m *MethodInfo) FullPath() string {
+	return path.Join(m.ServicePath, m.Path)
+}
+
+// ReturnLink creates link to a complex object
+func (m *MethodInfo) ReturnLink() string {
+	if m.ReturnType == nil {
+		return fmt.Sprintf("#")
+	}
+
+	if len(m.ReturnType.Args) == 0 {
+		return fmt.Sprintf("type_%s.html", m.ReturnType.Name)
+	} else {
+		return fmt.Sprintf("type_%s.html", m.ReturnType.Args[0].Name)
 	}
 }
 
@@ -332,6 +354,16 @@ func (m *MethodInfo) Clone() *MethodInfo {
 	return &cloned
 }
 
+// SampleRequest create sample HTTP request
+func (m *MethodInfo) SampleRequest() string {
+	return CreateMethodRequestSample(GetMetaModel(), m)
+}
+
+// SampleResponse create sample HTTP response
+func (m *MethodInfo) SampleResponse() string {
+	return CreateMethodResponseSample(GetMetaModel(), m)
+}
+
 func buildTsType(node *TypeNode) string {
 	if node == nil {
 		return ""
@@ -386,6 +418,17 @@ func (p *ParamInfo) Clone() *ParamInfo {
 	// Shallow copy all scalar fields at once
 	cloned := *p
 	return &cloned
+}
+
+// Link creates link to a complex object
+func (p *ParamInfo) Link() string {
+	if ci := GetMetaModel().FindClass(p.Type); ci != nil {
+		return fmt.Sprintf("type_%s.html", ci.Name)
+	} else if ei := GetMetaModel().FindEnum(p.Type); ei != nil {
+		return fmt.Sprintf("type_%s.html", ei.Name)
+	} else {
+		return fmt.Sprintf("#%s", p.Type)
+	}
 }
 
 type TypeNode struct {

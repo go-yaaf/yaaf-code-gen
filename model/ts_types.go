@@ -45,7 +45,7 @@ func GetTsType(pType string) string {
 	return pType
 }
 
-// GetGenericTsType - convert variables generics types to known TypeScript types
+// getGenericTsType - convert variables generics types to known TypeScript types
 func getGenericTsType(pType string) string {
 	// Extract type and index
 	start := strings.Index(pType, "[")

@@ -139,4 +139,9 @@ func (ci *ClassInfo) Clone() *ClassInfo {
 	return &cloned
 }
 
+// Sample create sample JSON representing the class
+func (ci *ClassInfo) Sample() string {
+	return CreateClassInfoSample(GetMetaModel(), ci)
+}
+
 // endregion

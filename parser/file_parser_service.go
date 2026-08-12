@@ -41,7 +41,7 @@ func (p *FileParser) processServiceType(ti *model.TypeInfo, decl *ast.GenDecl) e
 // process service method
 func (p *FileParser) processServiceMethod(decl *ast.FuncDecl) error {
 	if decl.Recv == nil {
-		return fmt.Errorf("no reciever fount")
+		return fmt.Errorf("no receiver fount")
 	}
 
 	starExp, ok := decl.Recv.List[0].Type.(*ast.StarExpr)
@@ -86,11 +86,16 @@ func (p *FileParser) processServiceMethod(decl *ast.FuncDecl) error {
 // @Json: - the json name of the field
 func (p *FileParser) processServiceMethodComments(si *model.ServiceInfo, name string, comments []*ast.Comment) {
 
-	mi := model.NewMethodInfo(model.Title(name))
+	mi := si.NewMethodInfo(model.Title(name))
 
 	for _, comment := range comments {
 		line := p.trimComment(comment.Text)
 		if len(line) == 0 {
+			continue
+		}
+
+		// ignore IDE comments
+		if strings.HasPrefix(line, "region") {
 			continue
 		}
 

@@ -111,7 +111,7 @@ const SERVICE_TMPL = `
 
 `
 const METHOD_TMPL = `
-<div class="border border-slate-800 rounded-lg p-4 mb-4">
+<div class="border border-slate-800 rounded-lg p-4 mb-2">
 
 	<h2 class="text-xl font-bold text-white mb-2">{{.Name}}</h2>
 	<div class="mt-2">
@@ -121,7 +121,7 @@ const METHOD_TMPL = `
 		{{if eq .Method "PUT"}}   <span class="ml-4 text-sm bg-purple-500/50 text-purple-200 rounded-md font-bold font-mono">{{.Method}}</span>{{end}}
 		{{if eq .Method "DELETE"}}<span class="ml-4 text-sm bg-red-500/50 text-red-200 rounded-md font-bold font-mono">{{.Method}}</span>{{end}}
 		{{if eq .Method "PATCH"}} <span class="ml-4 text-sm bg-amber-500/50 text-amber-200 rounded-md font-bold font-mono">{{.Method}}</span>{{end}}
-		<span class="ml-2 text-base font-mono text-emerald-400">{{.Path}}</span>
+		<span class="ml-2 text-base font-mono text-emerald-400">{{.FullPath}}</span>
 	</div>
 	<div class="mt-2">
 		<span class="mr-4 text-sm font-semibold text-slate-300 uppercase">Client Lib</span>
@@ -156,7 +156,9 @@ const METHOD_TMPL = `
 	<div class="border-t border-slate-800 divide-y divide-slate-800 text-sm">
 		<div class="flex gap-x-2 py-1">
 			<span class="w-1/6 font-mono text-emerald-400">Return</span>
-			<span class="w-1/6 font-mono text-blue-200">{{.ReturnClass}}</span>
+			<span class="w-1/6 font-mono text-blue-200">
+				<a href="{{.ReturnLink}}" class="block py-1 px-1.5 rounded text-gray-300 font-medium hover:text-white">{{.ReturnClass}}</a>
+			</span>
 			<span class="text-slate-200">
 				{{range .Return.Docs}}<p class="text-slate-100 leading-relaxed text-base mb-2">{{.}}</p>{{end}}
 			</span>
@@ -167,37 +169,24 @@ const METHOD_TMPL = `
 `
 
 const EXAMPLE_TMPL = `
-<div class="bg-slate-950 p-6 space-y-16 sticky top-0 xl:h-screen xl:overflow-y-auto">
-	<div class="space-y-4 pt-12">
+<div class="bg-slate-950 p-6 space-y-6 sticky top-0 xl:h-screen xl:overflow-y-auto">
+	<div class="space-y-2 pt-0">
 		<div class="flex items-center justify-between border-b border-slate-800 pb-2">
 			<span class="text-xs font-semibold text-slate-400 uppercase">Request Example</span>
 			<span class="text-xs font-mono text-slate-500">HTTP</span>
 		</div>
-		<pre class="bg-slate-900 border border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 overflow-x-auto">
-{{.Method}} https://path/to/api/v1/{{.Path}} \
-  -H "X-API-KEY: your_api_key"
-  -H "X-ACCESS-TOKEN: your_access_token"
-
+		<pre class="bg-slate-900 border border-slate-800 rounded-lg p-4 font-mono text-xs text-yellow-400 overflow-x-auto">
+{{.SampleRequest}} 
 		</pre>
 	</div>
 
-	<div class="space-y-4 pt-12">
+	<div class="space-y-2 pt-0">
 		<div class="flex items-center justify-between border-b border-slate-800 pb-2">
-			<span class="text-xs font-semibold text-slate-400 uppercase">Response</span>
+			<span class="text-xs font-semibold text-slate-400 uppercase">Response Example</span>
 			<span class="text-xs font-mono text-emerald-400">200 OK</span>
 		</div>
 		<pre class="bg-slate-900 border border-slate-800 rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
-{
-  "object": "list",
-  "data": [
-    {
-      "id": "usr_9J2x",
-      "name": "Jane Doe",
-      "email": "jane@example.com"
-    }
-  ],
-  "has_more": false
-}
+{{.SampleResponse}}
 		</pre>
 	</div>
 </div>

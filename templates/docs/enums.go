@@ -57,10 +57,8 @@ const ENUMS_TMPL = `
             <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Enums</h3>
 			<ul class="space-y-1 text-sm">
 			{{range .EnumList}}
-				<label for="r-{{.TsName}}" class="block py-1 px-1.5 rounded text-gray-300 hover:text-white cursor-pointer">
-					{{.Name}}
-				</label>
-				{{end}}
+				<a href="type_{{.Name}}.html" class="block py-1 px-1.5 rounded text-gray-300 font-medium hover:text-white">{{.Name}}</a>
+			{{end}}
             </ul>
         </div>
     </nav>

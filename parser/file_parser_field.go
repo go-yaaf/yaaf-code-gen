@@ -20,11 +20,12 @@ func (p *FileParser) processClassField(field *ast.Field, ci *model.ClassInfo) *m
 	}
 
 	fi := &model.FieldInfo{
-		Name:     field.Names[0].Name,
-		FullName: fmt.Sprintf("%s.%s", ci.Name, field.Names[0].Name),
-		TsName:   model.SmallCaps(field.Names[0].Name),
-		Json:     model.SmallCaps(field.Names[0].Name),
-		IsArray:  false,
+		Name:      field.Names[0].Name,
+		FullName:  fmt.Sprintf("%s.%s", ci.Name, field.Names[0].Name),
+		TsName:    model.SmallCaps(field.Names[0].Name),
+		Json:      model.SmallCaps(field.Names[0].Name),
+		IsArray:   false,
+		IsComplex: false,
 	}
 
 	switch ft := field.Type.(type) {
@@ -170,11 +171,7 @@ func (p *FileParser) processFieldTypeIdent(fi *model.FieldInfo, ft *ast.Ident) {
 		fi.Format = "datetime"
 		break
 	}
-	if fi.Type == "number" || fi.Type == "string" || fi.Type == "boolean" {
-		fi.IsComplex = false
-	} else {
-		fi.IsComplex = true
-	}
+	fi.IsComplex = !(fi.TsType == "number" || fi.TsType == "string" || fi.TsType == "boolean")
 }
 
 // process array type

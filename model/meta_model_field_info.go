@@ -31,7 +31,7 @@ func NewFieldInfo(name string, doc ...string) *FieldInfo {
 	fi := &FieldInfo{
 		Name:         name,
 		TsName:       SmallCaps(name),
-		IsComplex:    true,
+		IsComplex:    false,
 		IsGeneric:    false,
 		GenericTypes: make([]StringKeyValue, 0),
 	}

@@ -9,6 +9,12 @@ import (
 	"github.com/go-yaaf/yaaf-common/entity"
 )
 
+var metaModelInst *MetaModel
+
+func GetMetaModel() *MetaModel {
+	return metaModelInst
+}
+
 // StringKeyValue is a key-value pair of strings
 type StringKeyValue entity.Tuple[string, string]
 
@@ -20,9 +26,10 @@ type MetaModel struct {
 }
 
 func NewMetaModel() *MetaModel {
-	return &MetaModel{
+	metaModelInst = &MetaModel{
 		Packages: make(map[string]*PackageInfo),
 	}
+	return metaModelInst
 }
 
 // GetPackage get package by name or create one if not exists
@@ -158,6 +165,18 @@ func (m *MetaModel) FindClass(className string) *ClassInfo {
 		for _, ci := range pkg.Classes {
 			if ci.Name == className {
 				return ci
+			}
+		}
+	}
+	return nil
+}
+
+// FindEnum find enum info in all the packages
+func (m *MetaModel) FindEnum(enumName string) *EnumInfo {
+	for _, pkg := range m.Packages {
+		for _, ei := range pkg.Enums {
+			if ei.Name == enumName {
+				return ei
 			}
 		}
 	}

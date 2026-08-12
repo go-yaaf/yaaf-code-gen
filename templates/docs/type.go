@@ -39,20 +39,22 @@ const TYPE_TMPL = `
 </body>
 </html>
 `
+const TYPE_NAME_TMPL = `
+{{.Name}} {{if .IsGeneric}} [{{range .GenericTypes}}{{template "GENERIC_VAR_TMPL" .}}{{end}}]{{end}}
+`
+
+const GENERIC_VAR_TMPL = `
+<span class="mx-1 text-sm">{{.Key}}:</span><span class="text-sm text-emerald-400">{{.Value}}</span>
+`
 
 const TYPE_FIELDS_TMPL = `
         <div class="bg-slate-800 p-4 sticky top-0 xl:h-screen xl:overflow-y-auto">
             <section class="space-y-4">
-                <h2 class="text-xl font-bold text-white mb-4">{{.ClassInfo.Name}}</h2>
+                <h2 class="text-xl font-bold text-white mb-4">{{template "TYPE_NAME_TMPL" .ClassInfo}}</h2>
 				<div class="my-8">
 				{{range .ClassInfo.Docs}}<p class="text-slate-100 leading-relaxed mb-4">{{.}}</p>{{end}}
 				</div>
 				{{template "FIELDS_TMPL" .ClassInfo.Fields}}
-<!--
-				<div class="grid grid-cols-2 xl:grid-cols-2">
-					{{template "FIELDS_TMPL" .ClassInfo.Fields}}
-				</div>
--->
             </section>
         </div>
 `
@@ -65,17 +67,22 @@ const FIELDS_TMPL = `
 			<tr>
 				<td class="align-text-top font-mono text-emerald-400 py-2">{{.Name}}</td>
 				<td class="px-6 align-text-top font-mono text-blue-200">
-				{{if .IsComplex}}
-                    <a href="type_{{.Type}}.html" class="text-gray-200 hover:text-white">{{.Type}}</a>
+				{{if .IsGeneric}}
+					{{if .IsComplex}}
+						<span class="text-gray-200">{{.Type}}</a>
+					{{ else }}
+						<span class="text-gray-200">{{.Type}}</a>
+					{{end}}
+				{{else if .IsComplex}}
+                    <a href="type_{{.Type}}.html" class="text-gray-200 hover:text-white">{{.Type}}{{if .IsArray}}[]{{end}}</a>
 				{{ else }}
-                    <span class="text-gray-200">{{.Type}}</a>
+                    <span class="text-gray-200">{{.Type}}{{if .IsArray}}[]{{end}}</a>
 				{{end}}
 				<td class="align-text-top">
 					{{range .Docs}}
 						<span class="text-gray-100 leading-relaxed text-base mb-2">{{.}}</span><br>
 					{{end}}
 				</td>
-				<td>{{if .IsMap}} [Map] {{end}}{{if .IsGeneric}} [Generic] {{end}}</td>
 			<tr>
 			{{end}}
 		</tbody>
@@ -91,13 +98,7 @@ const TYPE_EXAMPLE_TMPL = `
 			<span class="text-xs font-mono text-emerald-400">Json</span>
 		</div>
 		<pre class="bg-slate-900 border border-slate-800 rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
-{
-  "field_1": "list",
-  "id": "usr_9J2x",
-  "name": "Jane Doe",
-  "email": "jane@example.com"
-  "has_more": false
-}
+{{.ClassInfo.Sample}}
 		</pre>
 	</div>
 </div>

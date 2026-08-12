@@ -101,12 +101,12 @@ const INDEX_TMPL = `
                 <h2 class="text-2xl font-bold text-white mb-4">Authentication</h2>
                 <p class="text-slate-300 leading-relaxed mb-4">Authenticate your requests using API key and access token (can be also provided as Bearer token) in the Authorization header.</p>
                 <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-300 w-xl">
-                    <span>X-API-KEY: </span><span class="mx-8 text-emerald-400">YOUR_API_KEY</span>
+                    <span class="mx-4">X-API-KEY: </span><span class="mx-8 text-emerald-400">YOUR_API_KEY</span>
                 </div>
-                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-300 w-2xl">
+                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-300 w-xl">
                     <span class="mx-4">X-ACCESS-TOKEN: </span><span class="mx-8 text-emerald-400">YOUR_ACCESS_TOKEN</span><br><br>
                     <span class="my-4 mx-8 text-sm font-bold text-white">or</span><br><br>
-                    <span class="mx-4">Authorization: Bearer </span><span class="mx-8 text-emerald-400">YOUR_ACCESS_TOKEN</span>
+                    <span class="mx-4">Authorization: Bearer </span><span class="mx-4 text-emerald-400">YOUR_ACCESS_TOKEN</span>
                 </div>
             </section>
             <section id="headers" class="scroll-mt-16">

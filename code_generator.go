@@ -11,22 +11,25 @@ import (
 	"github.com/go-yaaf/yaaf-code-gen/model"
 	"github.com/go-yaaf/yaaf-code-gen/parser"
 	"github.com/go-yaaf/yaaf-code-gen/processor"
+	"github.com/go-yaaf/yaaf-code-gen/processor_ng"
 	"github.com/go-yaaf/yaaf-code-gen/processor_ts"
 )
 
 // CodeGenerator is the main tool to parse source folder
 type CodeGenerator struct {
-	sourceFolders map[string]string // Map of source folders to namespaces
-	targetFolder  string            // Root target folder for the artifacts
-	pathFilters   []string          // Filter to process only files that their path includes the filter
-	Model         *model.MetaModel  // The generated abstract model
+	sourceFolders  map[string]string // Map of source folders to namespaces
+	targetFolder   string            // Root target folder for the artifacts
+	targetPlatform string            // Use target platform (default is: Angular)
+	pathFilters    []string          // Filter to process only files that their path includes the filter
+	Model          *model.MetaModel  // The generated abstract model
 }
 
 func NewCodeGenerator() *CodeGenerator {
 	return &CodeGenerator{
-		Model:         model.NewMetaModel(),
-		sourceFolders: make(map[string]string),
-		pathFilters:   make([]string, 0),
+		Model:          model.NewMetaModel(),
+		sourceFolders:  make(map[string]string),
+		pathFilters:    make([]string, 0),
+		targetPlatform: "angular",
 	}
 }
 
@@ -66,6 +69,12 @@ func (cg *CodeGenerator) WithServiceTemplate(template string, funcMap template.F
 	return cg
 }
 
+// WithTargetPlatform set the target platform
+func (cg *CodeGenerator) WithTargetPlatform(platform string) *CodeGenerator {
+	cg.targetPlatform = platform
+	return cg
+}
+
 // Process the source folders and generate artifacts
 func (cg *CodeGenerator) Process() error {
 
@@ -81,7 +90,7 @@ func (cg *CodeGenerator) Process() error {
 	cg.Model.FillDependencies()
 
 	// generate the artifacts
-	return cg.createTSFiles()
+	return cg.createSourceFiles()
 }
 
 // Parse all files in the list of folders and fill the metamodel
@@ -134,8 +143,20 @@ func (cg *CodeGenerator) checkFilter(filePath string) bool {
 	return false
 }
 
-// Create Typescript files
-func (cg *CodeGenerator) createTSFiles() error {
-	p := processor_ts.NewTsProcessor(cg.Model, cg.targetFolder)
-	return p.Start()
+// Create TypeScript files
+func (cg *CodeGenerator) createSourceFiles() error {
+
+	platform := strings.ToLower(cg.targetPlatform)
+
+	if cg.targetPlatform == "axios" {
+		p := processor_ts.NewTsProcessor(cg.Model, cg.targetFolder)
+		return p.Start()
+	}
+
+	if cg.targetPlatform == "angular" {
+		p := processor_ng.NewTsProcessor(cg.Model, cg.targetFolder)
+		return p.Start()
+	}
+
+	return fmt.Errorf("invalid platform: %s (supported platforms: angular, axios)", platform)
 }

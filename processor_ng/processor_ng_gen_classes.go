@@ -1,4 +1,4 @@
-package processor_ts
+package processor_ng
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ import (
 func addClassConstructor(class model.ClassInfo) string {
 	output := "    constructor("
 	for _, field := range class.Fields {
-		output += field.Json + "?: " + field.TsType
+		output += field.TsName + "?: " + field.TsType
 		if field.IsArray {
 			output += "[]"
 		}
@@ -32,7 +32,7 @@ func addClassConstructor(class model.ClassInfo) string {
 	}
 	output += ") { \n"
 	for _, field := range class.Fields {
-		line := fmt.Sprintf(`if (%s !== undefined) { this.%s = %s; }`, field.Json, field.Json, field.Json)
+		line := fmt.Sprintf(`if (%s !== undefined) { this.%s = %s; }`, field.TsName, field.Json, field.TsName)
 		output += "        " + line + "\n"
 	}
 	output += "    }\n"
@@ -115,7 +115,7 @@ func addNewInstance(class model.ClassInfo) string {
 	fields := p.Model.GetAllClassFields(class.Name)
 	for _, field := range fields {
 		if field.IsArray {
-			builder.WriteString(fmt.Sprintf("\tresult.%s = [];\n", field.Json))
+			builder.WriteString(fmt.Sprintf("\tresult.%s = [];\n", field.TsName))
 		} else if len(field.DefaultValue) > 0 {
 			builder.WriteString(fmt.Sprintf("\tresult.%s = %s;\n", field.Json, field.DefaultValue))
 		}
@@ -127,7 +127,7 @@ func addNewInstance(class model.ClassInfo) string {
 }
 
 // Generate classes
-func (p *TsProcessor) handleTsClasses() {
+func (p *NgProcessor) handleTsClasses() {
 	funcMap := template.FuncMap{
 		"getTsType":      getTsType,
 		"addImports":     addClassImports,
@@ -221,6 +221,8 @@ export class {{.Name}}{{. | genericsParam }}{{template "extend" .}} {
 
 {{end}}
 }
+
+
 
 // New empty instance
 {{. | addNewInstance}}

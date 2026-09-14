@@ -1,4 +1,4 @@
-package processor_ts
+package processor_ng
 
 import (
 	"fmt"
@@ -38,30 +38,30 @@ var tsTypes = map[string]string{
 	"Json":      "Record<string,object>",
 }
 
-var tsProcessorInst *TsProcessor = nil
+var ngProcessorInst *NgProcessor = nil
 
-// TsProcessor - TS processor converts proto files to TypeScript files
-type TsProcessor struct {
+// NgProcessor - Angular processor converts proto files to TypeScript files
+type NgProcessor struct {
 	BaseProcessor
 }
 
 // NewTsProcessor - Factory method
 func NewTsProcessor(model *model.MetaModel, output string) Processor {
-	tsProcessorInst = &TsProcessor{BaseProcessor{
+	ngProcessorInst = &NgProcessor{BaseProcessor{
 		Output: output,
 		Model:  model,
 	}}
-	return tsProcessorInst
+	return ngProcessorInst
 }
 
-func GetTsProcessor() *TsProcessor {
-	return tsProcessorInst
+func GetTsProcessor() *NgProcessor {
+	return ngProcessorInst
 }
 
 // var classPackageMap = make(map[string]string)
 
 // Start the processor
-func (p *TsProcessor) Start() error {
+func (p *NgProcessor) Start() error {
 
 	// Generate all enums
 	p.handleTsEnums()
@@ -73,7 +73,7 @@ func (p *TsProcessor) Start() error {
 	p.handleTsServices()
 
 	// Generate service exports
-	p.generateClientEntryPoint()
+	//p.generateServicesExports()
 
 	// Generate all index.ts files (barrels)
 	//p.generateIndexes()
@@ -81,7 +81,7 @@ func (p *TsProcessor) Start() error {
 }
 
 // create directory
-func (p *TsProcessor) makeDir(path string) {
+func (p *NgProcessor) makeDir(path string) {
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		log.Fatal("Error creating folder: "+path, err)
 	}
@@ -184,7 +184,7 @@ func getGenericTsMap(pType string) string {
 }
 
 // Generate TypeScript index
-func (p *TsProcessor) generateIndexTs(data []string, folder string) {
+func (p *NgProcessor) generateIndexTs(data []string, folder string) {
 	tmpl, _ := template.New("index.ts.tpl").Parse(indexTsTemplate)
 	fileName := path.Join(folder, "index.ts")
 

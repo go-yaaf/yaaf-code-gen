@@ -1,4 +1,4 @@
-package processor_ts
+package processor_ng
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ import (
 // region TS template Service Processor --------------------------------------------------------------------------------
 
 // Generate all services
-func (p *TsProcessor) handleTsServices() {
+func (p *NgProcessor) handleTsServices() {
 	var serviceList []model.ServiceInfo
 	for _, pkg := range p.Model.Packages {
 		for _, service := range pkg.Services {
@@ -85,7 +85,7 @@ func (p *TsProcessor) handleTsServices() {
 }
 
 // Generate service exports
-func (p *TsProcessor) generateServicesExports() {
+func (p *NgProcessor) generateServicesExports() {
 	var content []string
 	for _, pkg := range p.Model.Packages {
 		for sn := range pkg.Services {
@@ -260,20 +260,25 @@ func addServiceImports(service model.ServiceInfo) string {
 // region TypeScript service file template -----------------------------------------------------------------------------
 
 var serviceTsTemplate = `
+import { Injectable, Inject } from '@angular/core';
 import { RestUtils } from '../../rest-utils';
+import { APP_CONFIG, AppConfig } from '../../config';
 
 {{. | addServiceImports}}
 
 {{range .Docs}}
 // {{.}} {{end}}
+@Injectable({
+  providedIn: 'root'
+})
 export class {{.TsName}} {
 
   // URL to web api
   private baseUrl = '{{.Path}}';
 
   // Class constructor
-  constructor(private apiUrl: string, private rest: RestUtils) {
-    this.baseUrl = apiUrl + this.baseUrl;
+  constructor(@Inject(APP_CONFIG) private config: AppConfig, private rest: RestUtils) {
+    this.baseUrl = this.config.api + this.baseUrl;
   }
 
 {{range .Methods}}
@@ -301,38 +306,3 @@ export const Services = [
 `
 
 // endregion
-
-// region TypeScript client entry point file template ------------------------------------------------------------------
-
-// Generate service exports
-func (p *TsProcessor) generateClientEntryPoint() {
-	var content []string
-	for _, pkg := range p.Model.Packages {
-		for _, v := range pkg.Services {
-			content = append(content, v.TsName)
-		}
-	}
-	if len(content) == 0 {
-		return
-	}
-
-	tmpl, _ := template.New("pulse.client.ts.tpl").Parse(clientTsTemplate)
-	fileName := path.Join(p.Output, "pulse-client.ts")
-
-	var tpl bytes.Buffer
-	if err := tmpl.Execute(&tpl, content); err != nil {
-		log.Fatal("Error executing template [pulse.client.ts.tpl]: ", err)
-	}
-
-	// Remove newlines
-	processedContent := p.TrimNewLines(tpl.String())
-
-	if f, err := os.Create(fileName); err != nil {
-		log.Fatal("Error creating file: ", fileName, err)
-	} else {
-		if _, err = f.WriteString(processedContent); err != nil {
-			log.Fatal("Error writing to file: ", fileName, err)
-		}
-		_ = f.Close()
-	}
-}

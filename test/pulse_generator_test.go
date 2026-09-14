@@ -20,21 +20,18 @@ func TestPulseGenerator(t *testing.T) {
 	f1 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-model", gp)
 	gen.WithSourceFolder(f1, "model")
 
-	//f2 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/rest", gp)
-	//gen.WithSourceFolder(f2, "services")
-
-	f3 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-dashboard/rest", gp)
-	gen.WithSourceFolder(f3, "services")
+	f2 := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/rest", gp)
+	gen.WithSourceFolder(f2, "services")
 
 	gen.WithPathFilter("/bitbucket.org/shieldiot/")
 
-	//outDir := fmt.Sprintf("%s/src/github.com/go-yaaf/yaaf-code-gen/ng-workspace/projects/ngx-sample-lib/src/lib", gp)
-	outDir := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-dashboard/apps/projects/client/src/lib", gp)
+	outDir := fmt.Sprintf("%s/src/bitbucket.org/shieldiot/pulse/pulse-api/client_lib/axios/src/lib", gp)
 
 	err := os.MkdirAll(outDir, os.ModePerm)
 	require.Nil(t, err)
 
 	gen.WithTargetFolder(outDir)
+	gen.WithTargetPlatform("axios")
 	err = gen.Process()
 	require.Nil(t, err)
 }

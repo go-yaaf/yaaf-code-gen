@@ -99,6 +99,11 @@ func (p *FileParser) processServiceMethodComments(si *model.ServiceInfo, name st
 			continue
 		}
 
+		// ignore IDE comments
+		if strings.HasPrefix(line, "@Exclude") {
+			continue
+		}
+
 		if strings.HasPrefix(line, "@Http") {
 			action := p.getTagValue(line, "@Http:")
 			mi.SetAction(action)

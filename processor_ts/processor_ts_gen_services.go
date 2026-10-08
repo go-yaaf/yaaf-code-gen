@@ -146,7 +146,7 @@ func methodContent(methodInfo model.MethodInfo) string {
 
 	for _, param := range methodInfo.QueryParams {
 		queryParam += fmt.Sprintf(
-			"    if (%s != null) { params.push(`%s=${%s}`); }\n",
+			"    if (%s != null) { params.push(`%s=${encodeURIComponent(String(%s))}`); }\n",
 			param.Json,
 			param.Json,
 			param.Json)

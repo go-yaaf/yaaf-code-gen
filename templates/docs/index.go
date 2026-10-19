@@ -48,7 +48,7 @@ const INDEX_TMPL = `
 				<h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{{.Name}}</h3>
 				<ul class="space-y-1 text-sm">
 				{{range .List}}
-                    <a href="service_{{.TsName}}.html" class="block py-1 px-1.5 rounded text-gray-300 font-medium hover:text-white">{{.Name}}</a>
+                    <a href="service_{{.Name}}.html" class="block py-1 px-1.5 rounded text-gray-300 font-medium hover:text-white">{{.Name}}</a>
 				{{end}}
 				</ul>
 			{{end}}
